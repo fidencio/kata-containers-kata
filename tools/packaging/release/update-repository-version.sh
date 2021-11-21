@@ -150,29 +150,22 @@ bump_repo() {
 		#  -------------------+----------------+----------------+
 
 		info "Updating kata-deploy / kata-cleanup image tags"
+		version_to_replace=${current_version}
 		if [ "${target_branch}" == "main" ] && [[ "${new_version}" =~ "rc" ]]; then
-			# case 2)
-			## change the "latest" tag to the "#{new_version}" one
-			sed -i "s#quay.io/kata-containers/kata-deploy:latest#quay.io/kata-containers/kata-deploy:${new_version}#g" tools/packaging/kata-deploy/kata-deploy/base/kata-deploy.yaml
-			sed -i "s#quay.io/kata-containers/kata-deploy:latest#quay.io/kata-containers/kata-deploy:${new_version}#g" tools/packaging/kata-deploy/kata-cleanup/base/kata-cleanup.yaml
-
-			git diff
-
-			git add tools/packaging/kata-deploy/kata-deploy/base/kata-deploy.yaml
-			git add tools/packaging/kata-deploy/kata-cleanup/base/kata-cleanup.yaml
-
-			## and remove the kata-deploy & kata-cleanup stable yaml files
+			## remove the kata-deploy & kata-cleanup stable yaml files
 			git rm tools/packaging/kata-deploy/kata-deploy/base/kata-deploy-stable.yaml
 			git rm tools/packaging/kata-deploy/kata-cleanup/base/kata-cleanup-stable.yaml
-		elif [[ "${target_branch}" =~ "stable" ]]; then
-			# case 3)
-			sed -i "s#quay.io/kata-containers/kata-deploy:${current_version}#quay.io/kata-containers/kata-deploy:${new_version}#g" tools/packaging/kata-deploy/kata-deploy/base/kata-deploy.yaml
-			sed -i "s#quay.io/kata-containers/kata-deploy:${current_version}#quay.io/kata-containers/kata-deploy:${new_version}#g" tools/packaging/kata-deploy/kata-cleanup/base/kata-cleanup.yaml
-			git diff
 
-			git add tools/packaging/kata-deploy/kata-deploy/base/kata-deploy.yaml
-			git add tools/packaging/kata-deploy/kata-cleanup/base/kata-cleanup.yaml
+			version_to_replace="latest"
 		fi
+
+		sed -i "s#quay.io/kata-containers/kata-deploy:${version_to_replace}#quay.io/kata-containers/kata-deploy:${new_version}#g" tools/packaging/kata-deploy/kata-deploy/base/kata-deploy.yaml
+		sed -i "s#quay.io/kata-containers/kata-deploy:${version_to_replace}#quay.io/kata-containers/kata-deploy:${new_version}#g" tools/packaging/kata-deploy/kata-cleanup/base/kata-cleanup.yaml
+
+		git diff
+
+		git add tools/packaging/kata-deploy/kata-deploy/base/kata-deploy.yaml
+		git add tools/packaging/kata-deploy/kata-cleanup/base/kata-cleanup.yaml
 	fi
 
 	info "Creating PR message"
