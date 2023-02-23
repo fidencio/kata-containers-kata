@@ -302,9 +302,9 @@ externals:
       package: "OvmfPkg/AmdSev/AmdSevX64.dsc"
       package_output_dir: "AmdSev"
     tdx:
-      url: "https://github.com/tianocore/edk2-staging"
+      url: "https://github.com/tianocore/edk2"
       description: "TDVF build needed for TDX measured direct boot."
-      version: "2022-tdvf-ww28.5"
+      version: "edk2-stable202211"
       package: "OvmfPkg/OvmfPkgX64.dsc"
       package_output_dir: "OvmfX64"
 

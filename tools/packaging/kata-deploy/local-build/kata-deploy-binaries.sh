@@ -485,7 +485,7 @@ install_cc_tee_ovmf() {
 }
 
 install_cc_tdx_tdvf() {
-	install_cc_tee_ovmf "tdx" "edk2-staging-tdx.tar.gz"
+	install_cc_tee_ovmf "tdx" "edk2-tdx.tar.gz"
 }
 
 install_cc_sev_ovmf(){
