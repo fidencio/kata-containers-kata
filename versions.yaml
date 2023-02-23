@@ -101,7 +101,7 @@ assets:
       tdx:
         description: "VMM that uses KVM and supports TDX"
         url: "https://github.com/kata-containers/qemu"
-        tag: "TDX-v3.1"
+        tag: "ad4c7f529a279685da84297773b4ec8080153c2d-plus-TDX-v1.3"
       snp:
         description: "VMM that uses KVM and supports AMD SEV-SNP"
         url: "https://github.com/AMDESE/qemu"
