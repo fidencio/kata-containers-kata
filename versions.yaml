@@ -160,7 +160,7 @@ assets:
     tdx:
       description: "Linux kernel that supports TDX"
       url: "https://github.com/kata-containers/linux/archive/refs/tags"
-      tag: "5.15-plus-TDX"
+      tag: "5.19-TDX-v2.2"
     sev:
       description: "Linux kernel that supports SEV"
       url: "https://cdn.kernel.org/pub/linux/kernel/v5.x/"
