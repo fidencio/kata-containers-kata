@@ -53,6 +53,24 @@ trap finish EXIT
 go_version=${1:-}
 rust_version=${2:-}
 
+pushd "${tmp_dir}"
+
+while getopts "d:fh" opt
+do
+	case $opt in
+		d)	install_dest="${OPTARG}" ;;
+		f)	force="true" ;;
+		h)	usage 0 ;;
+	esac
+done
+
+shift $(( $OPTIND - 1 ))
+
+if [ -z "$go_version" ];then
+	echo "Missing go"
+	usage 1
+fi
+
 ARCH=${ARCH:-$(uname -m)}
 case "${ARCH}" in
 	aarch64)
@@ -82,28 +100,6 @@ case "${ARCH}" in
 		;;
 esac
 
-curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSLf | sh -s -- -y --default-toolchain ${rust_version} -t ${ARCH}-unknown-linux-${LIBC}
-source /root/.cargo/env
-rustup target add ${ARCH}-unknown-linux-${LIBC}
-
-pushd "${tmp_dir}"
-
-while getopts "d:fh" opt
-do
-	case $opt in
-		d)	install_dest="${OPTARG}" ;;
-		f)	force="true" ;;
-		h)	usage 0 ;;
-	esac
-done
-
-shift $(( $OPTIND - 1 ))
-
-if [ -z "$go_version" ];then
-	echo "Missing go"
-	usage 1
-fi
-
 if command -v go; then
 	[[ "$(go version)" == *"go${go_version}"* ]] && \
 		info "Go ${go_version} already installed" && \
@@ -122,4 +118,13 @@ curl -OL "https://storage.googleapis.com/golang/go${go_version}.${kernel_name,,}
 info "Install go"
 mkdir -p "${install_dest}"
 sudo tar -C "${install_dest}" -xzf "go${go_version}.${kernel_name,,}-${goarch}.tar.gz"
+
+if [ -z "${rust_version}" ]; then
+	exit 0
+fi
+
+curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSLf | sh -s -- -y --default-toolchain ${rust_version} -t ${ARCH}-unknown-linux-${LIBC}
+source /root/.cargo/env
+rustup target add ${ARCH}-unknown-linux-${LIBC}
+
 popd
