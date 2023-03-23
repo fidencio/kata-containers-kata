@@ -14,14 +14,8 @@ containerd_conf_file="/etc/containerd/config.toml"
 containerd_conf_file_backup="${containerd_conf_file}.bak"
 
 shims=(
-	"fc"
 	"qemu"
-	"qemu-nvidia-gpu"
 	"qemu-tdx"
-	"qemu-sev"
-	"qemu-snp"
-	"clh"
-	"dragonball"
 )
 
 default_shim="qemu"
@@ -62,8 +56,6 @@ function install_artifacts() {
 	echo "copying kata artifacts onto host"
 	cp -au /opt/kata-artifacts/opt/kata/* /opt/kata/
 	chmod +x /opt/kata/bin/*
-	[ -d /opt/kata/runtime-rs/bin ] && \
-		chmod +x /opt/kata/runtime-rs/bin/*
 }
 
 function wait_till_node_is_ready() {
@@ -124,11 +116,7 @@ function configure_different_shims_base() {
 
 		backup_shim "${shim_file}"
 
-		if [[ "${shim}" == "dragonball" ]]; then
-			ln -sf /opt/kata/runtime-rs/bin/containerd-shim-kata-v2 "${shim_file}"
-		else
-			ln -sf /opt/kata/bin/containerd-shim-kata-v2 "${shim_file}"
-		fi
+		ln -sf /opt/kata/bin/containerd-shim-kata-v2 "${shim_file}"
 		chmod +x "$shim_file"
 
 		if [ "${shim}" == "${default_shim}" ]; then
