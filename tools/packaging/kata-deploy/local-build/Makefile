@@ -13,12 +13,9 @@ ARCH := $(shell uname -m)
 ifeq ($(ARCH), x86_64)
 EXTRA_TARBALL=cc-cloud-hypervisor-tarball \
 	cc-tdx-kernel-tarball \
-	cc-sev-kernel-tarball \
 	cc-tdx-qemu-tarball \
 	cc-tdx-td-shim-tarball \
 	cc-tdx-tdvf-tarball \
-	cc-sev-ovmf-tarball \
-	cc-sev-rootfs-initrd-tarball \
 	cc-tdx-rootfs-image-tarball
 endif
 
