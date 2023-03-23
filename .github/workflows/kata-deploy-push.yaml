@@ -21,6 +21,7 @@ jobs:
           - kernel-dragonball-experimental
           - shim-v2
           - qemu
+          - qemu-tdx-experimental
           - cloud-hypervisor
           - firecracker
           - rootfs-image

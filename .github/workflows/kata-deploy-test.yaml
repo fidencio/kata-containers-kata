@@ -53,6 +53,7 @@ jobs:
           - kernel-dragonball-experimental
           - nydus
           - qemu
+          - qemu-tdx-experimental
           - rootfs-image
           - rootfs-initrd
           - shim-v2
