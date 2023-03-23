@@ -23,6 +23,7 @@ jobs:
           - rootfs-image
           - rootfs-initrd
           - shim-v2
+          - tdvf
           - virtiofsd
     steps:
       - name: Login to Kata Containers quay.io
