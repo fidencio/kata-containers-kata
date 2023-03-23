@@ -27,6 +27,7 @@ jobs:
           - firecracker
           - rootfs-image
           - rootfs-initrd
+          - tdvf
           - virtiofsd
           - nydus
     steps:
