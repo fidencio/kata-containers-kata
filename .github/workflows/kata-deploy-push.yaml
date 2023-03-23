@@ -19,6 +19,7 @@ jobs:
         asset:
           - kernel
           - kernel-dragonball-experimental
+          - kernel-tdx-experimental
           - shim-v2
           - qemu
           - qemu-tdx-experimental
