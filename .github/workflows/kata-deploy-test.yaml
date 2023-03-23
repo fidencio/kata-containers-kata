@@ -51,6 +51,7 @@ jobs:
           - firecracker
           - kernel
           - kernel-dragonball-experimental
+          - kernel-tdx-experimental
           - nydus
           - qemu
           - qemu-tdx-experimental
