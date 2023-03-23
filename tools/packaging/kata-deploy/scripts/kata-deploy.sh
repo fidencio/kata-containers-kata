@@ -60,6 +60,14 @@ function install_artifacts() {
 	chmod +x /opt/kata/bin/*
 }
 
+function configure_kata_default_configs() {
+	echo "Changing default vcpus / memory"
+	sed -i "s/\(default_vcpus\).*/\1\ = $(($(lscpu | grep 'CPU(s):' | head -1 | awk '{print $2}') * 80 / 100))/g" $(grep -rl default_vcpus $(find /opt/kata/ -name "*qemu*.toml"))
+	sed -i "s/\(default_maxvcpus\).*/\1\ = $(($(lscpu | grep 'CPU(s):' | head -1 | awk '{print $2}') * 80 / 100))/g" $(grep -rl default_vcpus $(find /opt/kata/ -name "*qemu*.toml"))
+	sed -i "s/\(default_memory\).*/\1\ = $(($(grep MemTotal /proc/meminfo | awk '{print $2}') * 80 / 102400))/g" $(grep -rl default_memory $(find /opt/kata/ -name "*qemu*.toml"))
+	sed -i "s/\(default_maxmemory\).*/\1\ = $(($(grep MemTotal /proc/meminfo | awk '{print $2}') * 80 / 102400))/g" $(grep -rl default_memory $(find /opt/kata/ -name "*qemu*.toml"))
+}
+
 function configure_cri_runtime() {
 	configure_different_shims_base
 
@@ -301,6 +309,7 @@ function main() {
 		case "$action" in
 		install)
 			install_artifacts
+			configure_kata_default_configs
 			configure_cri_runtime "$runtime"
 			kubectl label node "$NODE_NAME" --overwrite katacontainers.io/kata-runtime=true
 			;;
