@@ -117,6 +117,38 @@ function configure_different_shims_base() {
 	done
 }
 
+function configure_containerd_runc() {
+	local runtime=runc
+  	local pluginid=cri
+	if grep -q "version = 2\>" $containerd_conf_file; then
+		pluginid=\"io.containerd.grpc.v1.cri\"
+	fi
+	local runtime_table="plugins.${pluginid}.containerd.runtimes.$runtime"
+	local runtime_type="io.containerd.$runtime.v2"
+	local options_table="$runtime_table.options"
+	local systemdcgrp="true"
+
+	if grep -q "\[$runtime_table\]" $containerd_conf_file; then
+		echo "Configuration exists for $runtime_table, overwriting"
+		sed -i "/\[$runtime_table\]/,+1s#runtime_type.*#runtime_type = \"${runtime_type}\"#" $containerd_conf_file
+	else
+		cat <<EOT | tee -a "$containerd_conf_file"
+[$runtime_table]
+  runtime_type = "${runtime_type}"
+EOT
+	fi
+
+	if grep -q "\[$options_table\]" $containerd_conf_file; then
+		echo "Configuration exists for $options_table, overwriting"
+		sed -i "/\[$options_table\]/,+1s#SystemdCgroup.*#SystemdCgroup = ${systemdcgrp}#" $containerd_conf_file
+	else
+		cat <<EOT | tee -a "$containerd_conf_file"
+  [$options_table]
+    SystemdCgroup = ${systemdcgrp}
+EOT
+	fi
+}
+
 function cleanup_different_shims_base() {
 	for shim in "${shims[@]}"; do
 		local shim_binary="containerd-shim-kata-${shim}-v2"
@@ -228,6 +260,8 @@ function configure_containerd() {
 	for shim in "${shims[@]}"; do
 		configure_containerd_runtime $shim
 	done
+
+	configure_containerd_runc
 }
 
 function remove_artifacts() {
