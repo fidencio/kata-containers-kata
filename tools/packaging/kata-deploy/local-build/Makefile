@@ -15,8 +15,7 @@ EXTRA_TARBALL=cc-cloud-hypervisor-tarball \
 	cc-tdx-kernel-tarball \
 	cc-tdx-qemu-tarball \
 	cc-tdx-td-shim-tarball \
-	cc-tdx-tdvf-tarball \
-	cc-tdx-rootfs-image-tarball
+	cc-tdx-tdvf-tarball
 endif
 
 define BUILD
@@ -98,7 +97,6 @@ cc-parallel: $(MK_DIR)/dockerbuild/install_yq.sh
 
 cc: cc-kernel-tarball \
 	cc-qemu-tarball \
-	cc-rootfs-image-tarball \
 	cc-virtiofsd-tarball \
 	cc-shim-v2-tarball \
 	${EXTRA_TARBALL}
@@ -130,7 +128,7 @@ cc-se-image-tarball: cc-kernel-tarball cc-rootfs-initrd-tarball
 cc-tdx-rootfs-image-tarball:
 	${MAKE} $@-build
 
-cc-shim-v2-tarball:
+cc-shim-v2-tarball: cc-rootfs-image-tarball cc-tdx-rootfs-image-tarball
 	${MAKE} $@-build
 
 cc-virtiofsd-tarball:
