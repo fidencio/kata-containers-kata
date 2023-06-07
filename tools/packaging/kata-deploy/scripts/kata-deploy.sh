@@ -54,7 +54,25 @@ function get_container_runtime() {
 
 function install_artifacts() {
 	echo "copying kata artifacts onto host"
-	cp -au /opt/kata-artifacts/opt/kata/* /opt/kata/
+
+	local kernel=$(uname -r)
+	local artifacts_dir="kata-artifacts"
+	case "${kernel}" in
+		5.15*)
+			artifacts_dir+="-5.15"
+			;;
+		5.19*)
+			artifacts_dir+="-5.19"
+			;;
+		6.2*)
+			artifacts_dir="-6.2"
+			;;
+		*)
+			die "We should never reach this when installing artefacts, you're using a non-supported kernel version"
+			;;
+	esac
+
+	cp -au /opt/${artifacts_dir}/opt/kata/* /opt/kata/
 	chmod +x /opt/kata/bin/*
 }
 
