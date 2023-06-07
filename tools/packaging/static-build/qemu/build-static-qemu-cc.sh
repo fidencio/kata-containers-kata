@@ -16,7 +16,7 @@ qemu_repo="${qemu_repo:-}"
 qemu_version="${qemu_version:-}"
 tee="${tee:-}"
 
-export prefix="/opt/confidential-containers/"
+export prefix="/opt/kata/"
 
 if [ -z "${qemu_repo}" ]; then
 	info "Get qemu information from runtime versions.yaml"

@@ -324,7 +324,7 @@ install_cc_tdx_image() {
 
 #Install CC kernel asset
 install_cc_kernel() {
-	export KATA_BUILD_CC=yes
+	export KATA_BUILD_CC=no
 	export kernel_version="$(yq r $versions_yaml assets.kernel.version)"
 
 	local kernel_kata_config_version="$(cat ${repo_root_dir}/tools/packaging/kernel/kata_config_version)"
@@ -459,7 +459,7 @@ install_cached_kernel_component() {
 
 #Install CC kernel assert, with TEE support
 install_cc_tee_kernel() {
-	export KATA_BUILD_CC=yes
+	export KATA_BUILD_CC=no
 	tee="${1}"
 	kernel_version="${2}"
 	module_dir="${3:-}"
