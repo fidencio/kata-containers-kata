@@ -251,7 +251,7 @@ install_cc_image() {
 	image_initrd_suffix="${3:-""}"
 	root_hash_suffix="${4:-""}"
 	tee="${5:-""}"
-	export KATA_BUILD_CC=yes
+	export KATA_BUILD_CC=no
 
 	local jenkins="${jenkins_url}/job/kata-containers-2.0-rootfs-image-cc-$(uname -m)/${cached_artifacts_path}"
 	local component="rootfs-image"
