@@ -37,7 +37,7 @@ readonly nydus_builder="${static_build_dir}/nydus/build.sh"
 readonly rootfs_builder="${repo_root_dir}/tools/packaging/guest-image/build_image.sh"
 readonly se_image_builder="${repo_root_dir}/tools/packaging/guest-image/build_se_image.sh"
 
-readonly cc_prefix="/opt/confidential-containers"
+readonly cc_prefix="/opt/kata"
 readonly qemu_cc_builder="${static_build_dir}/qemu/build-static-qemu-cc.sh"
 
 source "${script_dir}/../../scripts/lib.sh"
