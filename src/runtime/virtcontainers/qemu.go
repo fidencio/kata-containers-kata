@@ -994,7 +994,7 @@ func (q *qemu) StartVM(ctx context.Context, timeout int) error {
 
 	}
 
-	qemuCmd, reader, err := govmmQemu.LaunchQemu(q.qemuConfig, newQMPLogger())
+	qemuCmd, reader, err := govmmQemu.LaunchQemu(q.qemuConfig, newQMPLogger(), q.config.ConfidentialGuest)
 	if err != nil {
 		q.Logger().WithError(err).Error("failed to launch qemu")
 		return fmt.Errorf("failed to launch qemu: %s", err)

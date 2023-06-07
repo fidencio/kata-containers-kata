@@ -2855,11 +2855,22 @@ func (config *Config) appendKernel() {
 	}
 }
 
-func (config *Config) appendMemoryKnobs() {
+func (config *Config) appendMemoryKnobs(confidentialGuest bool) {
 	if config.Memory.Size == "" {
 		return
 	}
-	var objMemParam, numaMemParam string
+	var objMemParam string
+
+	if confidentialGuest {
+		dimmName := "ram1"
+		objMemParam = "memory-backend-memfd-private,id=" + dimmName + ",size=" + config.Memory.Size
+
+		config.qemuParams = append(config.qemuParams, "-object")
+		config.qemuParams = append(config.qemuParams, objMemParam)
+		return
+	}
+
+	var numaMemParam string
 	dimmName := "dimm1"
 	if config.Knobs.HugePages {
 		objMemParam = "memory-backend-file,id=" + dimmName + ",size=" + config.Memory.Size + ",mem-path=/dev/hugepages"
@@ -2890,7 +2901,7 @@ func (config *Config) appendMemoryKnobs() {
 	}
 }
 
-func (config *Config) appendKnobs() {
+func (config *Config) appendKnobs(confidentialGuest bool) {
 	if config.Knobs.NoUserConfig {
 		config.qemuParams = append(config.qemuParams, "-no-user-config")
 	}
@@ -2915,7 +2926,7 @@ func (config *Config) appendKnobs() {
 		config.qemuParams = append(config.qemuParams, "-daemonize")
 	}
 
-	config.appendMemoryKnobs()
+	config.appendMemoryKnobs(confidentialGuest)
 
 	if config.Knobs.Mlock {
 		config.qemuParams = append(config.qemuParams, "-overcommit")
@@ -2986,7 +2997,7 @@ func (config *Config) appendFwCfg(logger QMPLog) {
 // The Config parameter contains a set of qemu parameters and settings.
 //
 // See LaunchCustomQemu for more information.
-func LaunchQemu(config Config, logger QMPLog) (*exec.Cmd, io.ReadCloser, error) {
+func LaunchQemu(config Config, logger QMPLog, confidentialGuest bool) (*exec.Cmd, io.ReadCloser, error) {
 	config.appendName()
 	config.appendUUID()
 	config.appendMachine()
@@ -2998,7 +3009,7 @@ func LaunchQemu(config Config, logger QMPLog) (*exec.Cmd, io.ReadCloser, error) 
 	config.appendGlobalParam()
 	config.appendPFlashParam()
 	config.appendVGA()
-	config.appendKnobs()
+	config.appendKnobs(confidentialGuest)
 	config.appendKernel()
 	config.appendBios()
 	config.appendIOThreads()
