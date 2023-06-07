@@ -211,27 +211,27 @@ install_cached_cc_shim_v2() {
 	wget "${jenkins_build_url}/root_hash_tdx.txt" -O "shim_v2_root_hash_tdx.txt" || return 1
 	diff "${root_hash_tdx}" "shim_v2_root_hash_tdx.txt" > /dev/null || return 1
 
-	install_cached_component \
-		"${component}" \
-		"${jenkins_build_url}" \
-		"${current_version}" \
-		"${current_image_version}" \
-		"${component_tarball_name}" \
-		"${component_tarball_path}" \
-		"$(basename ${root_hash_vanilla})" \
-		"$(basename ${root_hash_tdx})"
+#	install_cached_component \
+#		"${component}" \
+#		"${jenkins_build_url}" \
+#		"${current_version}" \
+#		"${current_image_version}" \
+#		"${component_tarball_name}" \
+#		"${component_tarball_path}" \
+#		"$(basename ${root_hash_vanilla})" \
+#		"$(basename ${root_hash_tdx})"
 }
 
 # Install static CC cloud-hypervisor asset
 install_cc_clh() {
-	install_cached_component \
-		"cloud-hypervisor" \
-		"${jenkins_url}/job/kata-containers-2.0-clh-cc-$(uname -m)/${cached_artifacts_path}" \
-		"$(get_from_kata_deps "assets.hypervisor.cloud_hypervisor.version")" \
-		"" \
-		"${final_tarball_name}" \
-		"${final_tarball_path}" \
-		&& return 0
+#	install_cached_component \
+#		"cloud-hypervisor" \
+#		"${jenkins_url}/job/kata-containers-2.0-clh-cc-$(uname -m)/${cached_artifacts_path}" \
+#		"$(get_from_kata_deps "assets.hypervisor.cloud_hypervisor.version")" \
+#		"" \
+#		"${final_tarball_name}" \
+#		"${final_tarball_path}" \
+#		&& return 0
 
 	if [[ "${ARCH}" == "x86_64" ]]; then
 		export features="tdx"
@@ -283,16 +283,16 @@ install_cc_image() {
 	local pause_version="$(get_from_kata_deps "externals.pause.version")"
 	local rust_version="$(get_from_kata_deps "languages.rust.meta.newest-version")"
 
-	install_cached_component \
-		"${component}" \
-		"${jenkins}" \
-		"${osbuilder_last_commit}-${guest_image_last_commit}-${initramfs_last_commit}-${agent_last_commit}-${libs_last_commit}-${attestation_agent_version}-${gperf_version}-${libseccomp_version}-${pause_version}-${rust_version}-${image_type}-${AA_KBC}" \
-		"" \
-		"${final_tarball_name}" \
-		"${final_tarball_path}" \
-		"${root_hash_vanilla}" \
-		"${root_hash_tdx}" \
-		&& return 0
+#	install_cached_component \
+#		"${component}" \
+#		"${jenkins}" \
+#		"${osbuilder_last_commit}-${guest_image_last_commit}-${initramfs_last_commit}-${agent_last_commit}-${libs_last_commit}-${attestation_agent_version}-${gperf_version}-${libseccomp_version}-${pause_version}-${rust_version}-${image_type}-${AA_KBC}" \
+#		"" \
+#		"${final_tarball_name}" \
+#		"${final_tarball_path}" \
+#		"${root_hash_vanilla}" \
+#		"${root_hash_tdx}" \
+#		&& return 0
 
 	info "Create CC image configured with AA_KBC=${AA_KBC}"
 	"${rootfs_builder}" \
@@ -329,14 +329,14 @@ install_cc_kernel() {
 
 	local kernel_kata_config_version="$(cat ${repo_root_dir}/tools/packaging/kernel/kata_config_version)"
 
-	install_cached_component \
-		"kernel" \
-		"${jenkins_url}/job/kata-containers-2.0-kernel-cc-$(uname -m)/${cached_artifacts_path}" \
-		"${kernel_version}-${kernel_kata_config_version}" \
-		"$(get_kernel_image_name)" \
-		"${final_tarball_name}" \
-		"${final_tarball_path}" \
-		&& return 0
+#	install_cached_component \
+#		"kernel" \
+#		"${jenkins_url}/job/kata-containers-2.0-kernel-cc-$(uname -m)/${cached_artifacts_path}" \
+#		"${kernel_version}-${kernel_kata_config_version}" \
+#		"$(get_kernel_image_name)" \
+#		"${final_tarball_name}" \
+#		"${final_tarball_path}" \
+#		&& return 0
 
 	info "build initramfs for CC kernel"
 	"${initramfs_builder}"
@@ -349,14 +349,14 @@ install_cc_qemu() {
 	export qemu_repo="$(yq r $versions_yaml assets.hypervisor.qemu.url)"
 	export qemu_version="$(yq r $versions_yaml assets.hypervisor.qemu.version)"
 
-	install_cached_component \
-		"QEMU" \
-		"${jenkins_url}/job/kata-containers-2.0-qemu-cc-$(uname -m)/${cached_artifacts_path}" \
-		"${qemu_version}-$(calc_qemu_files_sha256sum)" \
-		"$(get_qemu_image_name)" \
-		"${final_tarball_name}" \
-		"${final_tarball_path}" \
-		&& return 0
+#	install_cached_component \
+#		"QEMU" \
+#		"${jenkins_url}/job/kata-containers-2.0-qemu-cc-$(uname -m)/${cached_artifacts_path}" \
+#		"${qemu_version}-$(calc_qemu_files_sha256sum)" \
+#		"$(get_qemu_image_name)" \
+#		"${final_tarball_name}" \
+#		"${final_tarball_path}" \
+#		&& return 0
 
 	"${qemu_cc_builder}"
 	tar xvf "${builddir}/kata-static-qemu-cc.tar.gz" -C "${destdir}"
@@ -371,14 +371,14 @@ install_cc_shimv2() {
 	local rust_version="$(get_from_kata_deps "languages.rust.meta.newest-version")"
 	local shim_v2_version="${shim_v2_last_commit}-${protocols_last_commit}-${runtime_rs_last_commit}-${golang_version}-${rust_version}"
 
-	install_cached_cc_shim_v2 \
-		"shim-v2" \
-		"${jenkins_url}/job/kata-containers-2.0-shim-v2-cc-$(uname -m)/${cached_artifacts_path}" \
-		"${shim_v2_version}" \
-		"$(get_shim_v2_image_name)" \
-		"${final_tarball_name}" \
-		"${final_tarball_path}" \
-		&& return 0
+#	install_cached_cc_shim_v2 \
+#		"shim-v2" \
+#		"${jenkins_url}/job/kata-containers-2.0-shim-v2-cc-$(uname -m)/${cached_artifacts_path}" \
+#		"${shim_v2_version}" \
+#		"$(get_shim_v2_image_name)" \
+#		"${final_tarball_name}" \
+#		"${final_tarball_path}" \
+#		&& return 0
 
 	GO_VERSION="$(yq r ${versions_yaml} languages.golang.meta.newest-version)"
 	RUST_VERSION="$(yq r ${versions_yaml} languages.rust.meta.newest-version)"
@@ -406,14 +406,14 @@ install_cc_shimv2() {
 # Install static CC virtiofsd asset
 install_cc_virtiofsd() {
 	local virtiofsd_version="$(get_from_kata_deps "externals.virtiofsd.version")-$(get_from_kata_deps "externals.virtiofsd.toolchain")"
-	install_cached_component \
-		"virtiofsd" \
-		"${jenkins_url}/job/kata-containers-2.0-virtiofsd-cc-$(uname -m)/${cached_artifacts_path}" \
-		"${virtiofsd_version}" \
-		"$(get_virtiofsd_image_name)" \
-		"${final_tarball_name}" \
-		"${final_tarball_path}" \
-		&& return 0
+#	install_cached_component \
+#		"virtiofsd" \
+#		"${jenkins_url}/job/kata-containers-2.0-virtiofsd-cc-$(uname -m)/${cached_artifacts_path}" \
+#		"${virtiofsd_version}" \
+#		"$(get_virtiofsd_image_name)" \
+#		"${final_tarball_name}" \
+#		"${final_tarball_path}" \
+#		&& return 0
 
 	info "build static CC virtiofsd"
 	"${virtiofsd_builder}"
@@ -468,7 +468,7 @@ install_cc_tee_kernel() {
 
 	export kernel_version=${kernel_version}
 
-	install_cached_kernel_component "${tee}" "${kernel_version}" "${module_dir}" && return 0
+#	install_cached_kernel_component "${tee}" "${kernel_version}" "${module_dir}" && return 0
 
 	info "build initramfs for TEE kernel"
 	"${initramfs_builder}"
@@ -498,14 +498,14 @@ install_cc_tee_qemu() {
 	export qemu_version="$(yq r $versions_yaml assets.hypervisor.qemu.${tee}.tag)"
 	export tee="${tee}"
 
-	install_cached_component \
-		"QEMU ${tee}" \
-		"${jenkins_url}/job/kata-containers-2.0-qemu-${tee}-cc-$(uname -m)/${cached_artifacts_path}" \
-		"${qemu_version}-$(calc_qemu_files_sha256sum)" \
-		"$(get_qemu_image_name)" \
-		"${final_tarball_name}" \
-		"${final_tarball_path}" \
-		&& return 0
+#	install_cached_component \
+#		"QEMU ${tee}" \
+#		"${jenkins_url}/job/kata-containers-2.0-qemu-${tee}-cc-$(uname -m)/${cached_artifacts_path}" \
+#		"${qemu_version}-$(calc_qemu_files_sha256sum)" \
+#		"$(get_qemu_image_name)" \
+#		"${final_tarball_name}" \
+#		"${final_tarball_path}" \
+#		&& return 0
 
 	"${qemu_cc_builder}"
 	tar xvf "${builddir}/kata-static-${tee}-qemu-cc.tar.gz" -C "${destdir}"
@@ -516,14 +516,14 @@ install_cc_tdx_qemu() {
 }
 
 install_cc_tdx_td_shim() {
-	install_cached_component \
-		"td-shim" \
-		"${jenkins_url}/job/kata-containers-2.0-td-shim-cc-$(uname -m)/${cached_artifacts_path}" \
-		"$(get_from_kata_deps "externals.td-shim.version")-$(get_from_kata_deps "externals.td-shim.toolchain")" \
-		"$(get_td_shim_image_name)" \
-		"${final_tarball_name}" \
-		"${final_tarball_path}" \
-		&& return 0
+#	install_cached_component \
+#		"td-shim" \
+#		"${jenkins_url}/job/kata-containers-2.0-td-shim-cc-$(uname -m)/${cached_artifacts_path}" \
+#		"$(get_from_kata_deps "externals.td-shim.version")-$(get_from_kata_deps "externals.td-shim.toolchain")" \
+#		"$(get_td_shim_image_name)" \
+#		"${final_tarball_name}" \
+#		"${final_tarball_path}" \
+#		&& return 0
 
 	DESTDIR="${destdir}" PREFIX="${cc_prefix}" "${td_shim_builder}"
 	tar xvf "${builddir}/td-shim.tar.gz" -C "${destdir}"
@@ -536,14 +536,14 @@ install_cc_tee_ovmf() {
 	local component_name="ovmf"
 	local component_version="$(get_from_kata_deps "externals.ovmf.${tee}.version")"
 	[ "${tee}" == "tdx" ] && component_name="tdvf"
-	install_cached_component \
-		"${component_name}" \
-		"${jenkins_url}/job/kata-containers-2.0-${component_name}-cc-$(uname -m)/${cached_artifacts_path}" \
-		"${component_version}" \
-		"$(get_ovmf_image_name)" \
-		"${final_tarball_name}" \
-		"${final_tarball_path}" \
-		&& return 0
+#	install_cached_component \
+#		"${component_name}" \
+#		"${jenkins_url}/job/kata-containers-2.0-${component_name}-cc-$(uname -m)/${cached_artifacts_path}" \
+#		"${component_version}" \
+#		"$(get_ovmf_image_name)" \
+#		"${final_tarball_name}" \
+#		"${final_tarball_path}" \
+#		&& return 0
 
 	DESTDIR="${destdir}" PREFIX="${cc_prefix}" ovmf_build="${tee}" "${ovmf_builder}"
 	tar xvf "${builddir}/${tarball_name}" -C "${destdir}"
