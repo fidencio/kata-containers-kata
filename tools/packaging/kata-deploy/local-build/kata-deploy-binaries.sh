@@ -396,7 +396,7 @@ install_cc_shimv2() {
 	RUST_VERSION="$(yq r ${versions_yaml} languages.rust.meta.newest-version)"
 	export GO_VERSION
 	export RUST_VERSION
-	export REMOVE_VMM_CONFIGS="acrn fc"
+	export REMOVE_VMM_CONFIGS="acrn fc qemu-se qemu-sev qenu-snp remote"
 
 	extra_opts="DEFSERVICEOFFLOAD=true"
 	if [ "${MEASURED_ROOTFS}" == "yes" ]; then

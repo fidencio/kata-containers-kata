@@ -16,10 +16,6 @@ EXTRA_TARBALL=cc-cloud-hypervisor-tarball \
 	cc-tdx-qemu-tarball \
 	cc-tdx-td-shim-tarball \
 	cc-tdx-tdvf-tarball \
-	cc-sev-ovmf-tarball \
-	cc-x86_64-ovmf-tarball \
-	cc-sev-rootfs-initrd-tarball \
-	cc-snp-qemu-tarball \
 	cc-tdx-rootfs-image-tarball
 endif
 
