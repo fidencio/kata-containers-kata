@@ -86,11 +86,24 @@ function wait_till_node_is_ready() {
 }
 
 function configure_kata_default_configs() {
-	echo "Changing default vcpus / memory"
-	sed -i "s/\(default_vcpus\).*/\1\ = $(($(lscpu | grep 'CPU(s):' | head -1 | awk '{print $2}') * 80 / 100))/g" $(grep -rl default_vcpus $(find /opt/kata/ -name "*qemu*.toml"))
-	sed -i "s/\(default_maxvcpus\).*/\1\ = $(($(lscpu | grep 'CPU(s):' | head -1 | awk '{print $2}') * 80 / 100))/g" $(grep -rl default_vcpus $(find /opt/kata/ -name "*qemu*.toml"))
-	sed -i "s/\(default_memory\).*/\1\ = $(($(grep MemTotal /proc/meminfo | awk '{print $2}') * 80 / 102400))/g" $(grep -rl default_memory $(find /opt/kata/ -name "*qemu*.toml"))
-	sed -i "s/\(default_maxmemory\).*/\1\ = $(($(grep MemTotal /proc/meminfo | awk '{print $2}') * 80 / 102400))/g" $(grep -rl default_memory $(find /opt/kata/ -name "*qemu*.toml"))
+	echo "Changing default vcpus"
+	vcpus_new_default=$(($(lscpu | grep 'CPU(s):' | head -1 | awk '{print $2}') * 80 / 100))
+	echo "Using \"$vcpus_new_default\" as the default amount of vcpus"
+	sed -i "s/\(default_vcpus\).*/\1\ = $vcpus_new_default/g" $(grep -rl default_vcpus $(find /opt/kata/ -name "*qemu*.toml"))
+	sed -i "s/\(default_maxvcpus\).*/\1\ = $vcpus_new_default/g" $(grep -rl default_vcpus $(find /opt/kata/ -name "*qemu*.toml"))
+
+	echo "Changing default memory"
+	memory_new_default = $(($(grep MemTotal /proc/meminfo | awk '{print $2}') * 80 / 102400))
+	one_tib = 1048576
+	if [ ${memory_new_default} -gt ${one_tib} ]; then
+		echo "Default memory is greater than 1TiB"
+		echo "Let's cap it to 1TiB, due to a QEMU limitation"
+		echo "see: https://cpaelzer.github.io/blogs/005-guests-bigger-than-1tb/"
+		memory_new_default = ${one_tib}
+	fi
+
+	sed -i "s/\(default_memory\).*/\1\ = $memory_new_default/g" $(grep -rl default_memory $(find /opt/kata/ -name "*qemu*.toml"))
+	sed -i "s/\(default_maxmemory\).*/\1\ = $memory_new_default/g" $(grep -rl default_memory $(find /opt/kata/ -name "*qemu*.toml"))
 }
 
 function configure_cri_runtime() {
