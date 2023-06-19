@@ -25,7 +25,6 @@ all: serial-targets \
 	kernel-tarball \
 	kernel-tdx-experimental-tarball \
 	shim-v2-tarball \
-	tdvf-tarball \
 	virtiofsd-tarball
 
 serial-targets:
