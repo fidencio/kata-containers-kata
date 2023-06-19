@@ -12,7 +12,7 @@
 # XXX:   Type: @PROJECT_TYPE@
 
 [hypervisor.qemu]
-path = "@QEMUTDXPATH@"
+path = "/usr/libexec/qemu-kvm"
 kernel = "@KERNELTDXPATH@"
 image = "@IMAGETDXPATH@"
 # initrd = "@INITRDPATH@"

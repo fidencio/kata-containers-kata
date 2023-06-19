@@ -12,7 +12,6 @@ ARCH := $(shell uname -m)
 
 ifeq ($(ARCH), x86_64)
 EXTRA_TARBALL= cc-tdx-kernel-tarball \
-	cc-tdx-qemu-tarball \
 	cc-tdx-tdvf-tarball \
 	cc-tdx-rootfs-image-tarball
 endif
@@ -32,8 +31,6 @@ all-parallel: $(MK_DIR)/dockerbuild/install_yq.sh
 all: serial-targets \
 	kernel-tarball \
 	kernel-tdx-experimental-tarball \
-	qemu-tarball \
-	qemu-tdx-experimental-tarball \
 	shim-v2-tarball \
 	tdvf-tarball \
 	virtiofsd-tarball
@@ -127,7 +124,6 @@ cc-parallel: $(MK_DIR)/dockerbuild/install_yq.sh
 	${MAKE} -f $(MK_PATH) cc -j$$(( $$(nproc) - 1  )) V=
 
 cc: cc-kernel-tarball \
-	cc-qemu-tarball \
 	cc-rootfs-image-tarball \
 	cc-virtiofsd-tarball \
 	cc-shim-v2-tarball \
