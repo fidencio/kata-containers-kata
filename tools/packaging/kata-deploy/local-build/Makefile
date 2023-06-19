@@ -12,7 +12,6 @@ ARCH := $(shell uname -m)
 
 ifeq ($(ARCH), x86_64)
 EXTRA_TARBALL= cc-tdx-kernel-tarball \
-	cc-tdx-tdvf-tarball \
 	cc-tdx-rootfs-image-tarball
 endif
 
@@ -32,7 +31,6 @@ all: serial-targets \
 	kernel-tarball \
 	kernel-tdx-experimental-tarball \
 	shim-v2-tarball \
-	tdvf-tarball \
 	virtiofsd-tarball
 
 serial-targets:

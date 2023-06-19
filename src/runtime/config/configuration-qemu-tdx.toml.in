@@ -70,13 +70,13 @@ kernel_params = "@KERNELTDXPARAMS@"
 
 # Path to the firmware.
 # If you want that qemu uses the default firmware leave this option empty
-firmware = "@FIRMWARETDVFPATH@"
+firmware = "/usr/share/qemu/OVMF_CODE.fd"
 
 # Path to the firmware volume.
 # firmware TDVF or OVMF can be split into FIRMWARE_VARS.fd (UEFI variables
 # as configuration) and FIRMWARE_CODE.fd (UEFI program image). UEFI variables
 # can be customized per each user while UEFI code is kept same.
-firmware_volume = "@FIRMWARETDVFVOLUMEPATH@"
+firmware_volume = "/usr/share/qemu/OVMF_VARS.fd"
 
 # Machine accelerators
 # comma-separated list of machine accelerators to pass to the hypervisor.
