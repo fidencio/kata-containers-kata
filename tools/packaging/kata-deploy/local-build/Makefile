@@ -24,8 +24,6 @@ all-parallel: $(MK_DIR)/dockerbuild/install_yq.sh
 all: serial-targets \
 	kernel-tarball \
 	kernel-tdx-experimental-tarball \
-	qemu-tarball \
-	qemu-tdx-experimental-tarball \
 	shim-v2-tarball \
 	tdvf-tarball \
 	virtiofsd-tarball
