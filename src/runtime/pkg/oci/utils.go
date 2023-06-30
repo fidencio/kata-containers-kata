@@ -136,7 +136,7 @@ type RuntimeConfig struct {
 
 	// Sandbox sizing information which, if provided, indicates the size of
 	// the sandbox needed for the workload(s)
-	SandboxCPUs  uint32
+	SandboxCPUs  float64
 	SandboxMemMB uint32
 
 	// Determines if we should attempt to size the VM at boot time and skip
@@ -689,10 +689,10 @@ func addHypervisorCPUOverrides(ocispec specs.Spec, sbConfig *vc.SandboxConfig) e
 	numCPUs := goruntime.NumCPU()
 
 	if err := newAnnotationConfiguration(ocispec, vcAnnotations.DefaultVCPUs).setUintWithCheck(func(vcpus uint64) error {
-		if uint32(vcpus) > uint32(numCPUs) {
+		if int(vcpus) > numCPUs {
 			return fmt.Errorf("Number of cpus %d specified in annotation default_vcpus is greater than the number of CPUs %d on the system", vcpus, numCPUs)
 		}
-		sbConfig.HypervisorConfig.NumVCPUs = uint32(vcpus)
+		sbConfig.HypervisorConfig.NumVCPUs = float64(vcpus)
 		return nil
 	}); err != nil {
 		return err
@@ -956,6 +956,8 @@ func SandboxConfig(ocispec specs.Spec, runtime RuntimeConfig, bundlePath, cid st
 		return vc.SandboxConfig{}, err
 	}
 
+	ociLog.Errorf("FIDENCIO | SandboxCPUs: %v", runtime.SandboxCPUs)
+
 	sandboxConfig := vc.SandboxConfig{
 		ID: cid,
 
@@ -1007,9 +1009,13 @@ func SandboxConfig(ocispec specs.Spec, runtime RuntimeConfig, bundlePath, cid st
 	// with the base number of CPU/memory (which is equal to the default CPU/memory specified for the runtime
 	// configuration or annotations) as well as any specified workload resources.
 	if sandboxConfig.StaticResourceMgmt {
+		ociLog.Error("FIDENCIO | SandboxConfig")
+
 		sandboxConfig.SandboxResources.BaseCPUs = sandboxConfig.HypervisorConfig.NumVCPUs
 		sandboxConfig.SandboxResources.BaseMemMB = sandboxConfig.HypervisorConfig.MemorySize
 
+		ociLog.Errorf("FIDENCIO | HypervisorCPUs: %v", sandboxConfig.HypervisorConfig.NumVCPUs)
+		ociLog.Errorf("FIDENCIO | WorkloadsCPUs: %v", sandboxConfig.SandboxResources.WorkloadCPUs)
 		sandboxConfig.HypervisorConfig.NumVCPUs += sandboxConfig.SandboxResources.WorkloadCPUs
 		sandboxConfig.HypervisorConfig.MemorySize += sandboxConfig.SandboxResources.WorkloadMemMB
 
@@ -1176,7 +1182,9 @@ func (a *annotationConfiguration) setUintWithCheck(f func(uint64) error) error {
 
 // CalculateSandboxSizing will calculate the number of CPUs and amount of Memory that should
 // be added to the VM if sandbox annotations are provided with this sizing details
-func CalculateSandboxSizing(spec *specs.Spec) (numCPU, memSizeMB uint32) {
+func CalculateSandboxSizing(spec *specs.Spec) (numCPU float64, memSizeMB uint32) {
+	ociLog.Error("FIDENCIO | CalculateSandboxSizing")
+
 	var memory, quota int64
 	var period uint64
 	var err error
@@ -1223,7 +1231,7 @@ func CalculateSandboxSizing(spec *specs.Spec) (numCPU, memSizeMB uint32) {
 
 // CalculateContainerSizing will calculate the number of CPUs and amount of memory that is needed
 // based on the provided LinuxResources
-func CalculateContainerSizing(spec *specs.Spec) (numCPU, memSizeMB uint32) {
+func CalculateContainerSizing(spec *specs.Spec) (numCPU float64, memSizeMB uint32) {
 	var memory, quota int64
 	var period uint64
 
@@ -1245,8 +1253,14 @@ func CalculateContainerSizing(spec *specs.Spec) (numCPU, memSizeMB uint32) {
 	return calculateVMResources(period, quota, memory)
 }
 
-func calculateVMResources(period uint64, quota int64, memory int64) (numCPU, memSizeMB uint32) {
-	numCPU = vcutils.CalculateVCpusFromMilliCpus(vcutils.CalculateMilliCPUs(quota, period))
+func calculateVMResources(period uint64, quota int64, memory int64) (numCPU float64, memSizeMB uint32) {
+	ociLog.Error("FIDENCIO | calculateVMResources")
+	ociLog.Errorf("FIDENCIO | period: %v", period)
+	ociLog.Errorf("FIDENCIO | quota: %v", quota)
+
+	numCPU = vcutils.CalculateMilliCPUs(quota, period)
+
+	ociLog.Errorf("FIDENCIO | numCPU: %v", numCPU)
 
 	if memory < 0 {
 		// While spec allows for a negative value to indicate unconstrained, we don't

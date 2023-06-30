@@ -3175,7 +3175,7 @@ func LaunchCustomQemu(ctx context.Context, path string, params []string, fds []*
 		logger.Errorf("Unable to connect stderr to a pipe")
 		return nil, nil, err
 	}
-	logger.Infof("launching %s with: %v", path, params)
+	logger.Errorf("FIDENCIO | launching %s with: %v", path, params)
 
 	err = cmd.Start()
 	if err != nil {

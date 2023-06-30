@@ -8,6 +8,7 @@ package virtcontainers
 import (
 	"context"
 	"encoding/json"
+	"math"
 	"os"
 	"path/filepath"
 	"time"
@@ -160,7 +161,7 @@ func NewVM(ctx context.Context, config VMConfig) (*VM, error) {
 		id:         id,
 		hypervisor: hypervisor,
 		agent:      agent,
-		cpu:        config.HypervisorConfig.NumVCPUs,
+		cpu:        uint32(math.Ceil(config.HypervisorConfig.NumVCPUs)),
 		memory:     config.HypervisorConfig.MemorySize,
 		store:      store,
 	}, nil

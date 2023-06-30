@@ -522,7 +522,7 @@ type HypervisorConfig struct {
 	ColdPlugVFIO config.PCIePort
 
 	// NumVCPUs specifies default number of vCPUs for the VM.
-	NumVCPUs uint32
+	NumVCPUs float64
 
 	//DefaultMaxVCPUs specifies the maximum number of vCPUs for the VM.
 	DefaultMaxVCPUs uint32

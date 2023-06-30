@@ -122,6 +122,8 @@ func create(ctx context.Context, s *service, r *taskAPI.CreateTaskRequest) (*con
 			s.config.SandboxCPUs, s.config.SandboxMemMB = oci.CalculateContainerSizing(ociSpec)
 		}
 
+		shimLog.Errorf("FIDENCIO | SandboxCPUs: %v", s.config.SandboxCPUs)
+
 		if rootFs.Mounted, err = checkAndMount(s, r); err != nil {
 			return nil, err
 		}

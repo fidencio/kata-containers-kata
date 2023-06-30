@@ -258,12 +258,12 @@ func TestQemuCreateVMMissingParentDirFail(t *testing.T) {
 
 func TestQemuCPUTopology(t *testing.T) {
 	assert := assert.New(t)
-	vcpus := 1
+	vcpus := float64(1)
 
 	q := &qemu{
 		arch: &qemuArchBase{},
 		config: HypervisorConfig{
-			NumVCPUs:        uint32(vcpus),
+			NumVCPUs:        vcpus,
 			DefaultMaxVCPUs: uint32(vcpus),
 		},
 	}

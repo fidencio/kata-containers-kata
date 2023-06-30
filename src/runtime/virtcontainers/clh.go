@@ -14,6 +14,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -508,7 +509,7 @@ func (clh *cloudHypervisor) CreateVM(ctx context.Context, id string, network Net
 		clh.vmconfig.Memory.HotplugSize = func(i int64) *int64 { return &i }(int64((utils.MemUnit(hotplugSize) * utils.MiB).ToBytes()))
 	}
 	// Set initial amount of cpu's for the virtual machine
-	clh.vmconfig.Cpus = chclient.NewCpusConfig(int32(clh.config.NumVCPUs), int32(clh.config.DefaultMaxVCPUs))
+	clh.vmconfig.Cpus = chclient.NewCpusConfig(int32(math.Ceil(clh.config.NumVCPUs)), int32(clh.config.DefaultMaxVCPUs))
 
 	params, err := GetKernelRootParams(hypervisorConfig.RootfsType, clh.config.ConfidentialGuest, false)
 	if err != nil {
@@ -836,7 +837,7 @@ func (clh *cloudHypervisor) hotplugAddBlockDevice(drive *config.BlockDrive) erro
 	clhDisk.Readonly = &drive.ReadOnly
 	clhDisk.VhostUser = func(b bool) *bool { return &b }(false)
 
-	queues := int32(clh.config.NumVCPUs)
+	queues := int32(math.Ceil(clh.config.NumVCPUs))
 	queueSize := int32(1024)
 	clhDisk.NumQueues = &queues
 	clhDisk.QueueSize = &queueSize
@@ -1051,6 +1052,9 @@ func (clh *cloudHypervisor) ResizeVCPUs(ctx context.Context, reqVCPUs uint32) (c
 
 	currentVCPUs = uint32(info.Config.Cpus.BootVcpus)
 	newVCPUs = currentVCPUs
+
+	clh.Logger().Errorf("FIDENCIO | ResizeVCPUs")
+	clh.Logger().Errorf("FIDENCIO | reqVCPUs: %v", reqVCPUs)
 
 	// Sanity Check
 	if reqVCPUs == 0 {
@@ -1323,7 +1327,6 @@ func (clh *cloudHypervisor) launchClh() (int, error) {
 	}
 
 	args := []string{cscAPIsocket, clh.state.apiSocket}
-	if clh.config.Debug {
 		// Cloud hypervisor log levels
 		// 'v' occurrences increase the level
 		//0 =>  Error
@@ -1345,7 +1348,6 @@ func (clh *cloudHypervisor) launchClh() (int, error) {
 		//
 		//   https://github.com/kata-containers/kata-containers/pull/2751
 		args = append(args, "-v")
-	}
 
 	// Enable the `seccomp` feature from Cloud Hypervisor by default
 	// Disable it only when requested by users for debugging purposes
@@ -1483,14 +1485,12 @@ func (clh *cloudHypervisor) bootVM(ctx context.Context) error {
 
 	cl := clh.client()
 
-	if clh.config.Debug {
 		bodyBuf, err := json.Marshal(clh.vmconfig)
 		if err != nil {
 			return err
 		}
-		clh.Logger().WithField("body", string(bodyBuf)).Debug("VM config")
-	}
-	_, err := cl.CreateVM(ctx, clh.vmconfig)
+		clh.Logger().WithField("body", string(bodyBuf)).Errorf("FIDENCIO | VM config")
+	_, err = cl.CreateVM(ctx, clh.vmconfig)
 	if err != nil {
 		return openAPIClientError(err)
 	}
