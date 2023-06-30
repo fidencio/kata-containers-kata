@@ -7,6 +7,7 @@ package virtcontainers
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/kata-containers/kata-containers/src/runtime/pkg/device/config"
 )
@@ -54,9 +55,9 @@ func validateHypervisorConfig(conf *HypervisorConfig) error {
 		conf.DefaultMaxVCPUs = defaultMaxVCPUs
 	}
 
-	if conf.ConfidentialGuest && conf.NumVCPUs != conf.DefaultMaxVCPUs {
+	if conf.ConfidentialGuest && uint32(math.Ceil(conf.NumVCPUs)) != conf.DefaultMaxVCPUs {
 		hvLogger.Warnf("Confidential guests do not support hotplugging of vCPUs. Setting DefaultMaxVCPUs to NumVCPUs (%d)", conf.NumVCPUs)
-		conf.DefaultMaxVCPUs = conf.NumVCPUs
+		conf.DefaultMaxVCPUs = uint32(math.Ceil(conf.NumVCPUs))
 	}
 
 	if conf.Msize9p == 0 && conf.SharedFS != config.VirtioFS {

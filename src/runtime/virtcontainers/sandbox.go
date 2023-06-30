@@ -116,9 +116,9 @@ type SandboxStats struct {
 
 type SandboxResourceSizing struct {
 	// The number of CPUs required for the sandbox workload(s)
-	WorkloadCPUs uint32
+	WorkloadCPUs float64
 	// The base number of CPUs for the VM that are assigned as overhead
-	BaseCPUs uint32
+	BaseCPUs float64
 	// The amount of memory required for the sandbox workload(s)
 	WorkloadMemMB uint32
 	// The base amount of memory required for that VM that is assigned as overhead
@@ -2090,6 +2090,7 @@ func (s *Sandbox) updateResources(ctx context.Context) error {
 		s.Logger().Debug("no resources updated: static resource management is set")
 		return nil
 	}
+
 	sandboxVCPUs, err := s.calculateSandboxCPUs()
 	if err != nil {
 		return err
@@ -2118,7 +2119,7 @@ func (s *Sandbox) updateResources(ctx context.Context) error {
 
 	// Update VCPUs
 	s.Logger().WithField("cpus-sandbox", sandboxVCPUs).Debugf("Request to hypervisor to update vCPUs")
-	oldCPUs, newCPUs, err := s.hypervisor.ResizeVCPUs(ctx, sandboxVCPUs)
+	oldCPUs, newCPUs, err := s.hypervisor.ResizeVCPUs(ctx, uint32(math.Ceil(sandboxVCPUs)))
 	if err != nil {
 		return err
 	}
@@ -2314,8 +2315,10 @@ func (s *Sandbox) calculateSandboxMemory() (uint64, bool, int64) {
 	return memorySandbox, needPodSwap, swapSandbox
 }
 
-func (s *Sandbox) calculateSandboxCPUs() (uint32, error) {
-	mCPU := uint32(0)
+func (s *Sandbox) calculateSandboxCPUs() (float64, error) {
+	s.Logger().Error("FIDENCIO | calculateSandboxCPUs")
+
+	mCPU := float64(0)
 	cpusetCount := int(0)
 
 	for _, c := range s.config.Containers {
@@ -2342,10 +2345,10 @@ func (s *Sandbox) calculateSandboxCPUs() (uint32, error) {
 	//  1. BestEffort QoS: no proper support today in Kata.
 	//  2. We could be constrained only by CPUSets. Check for this:
 	if mCPU == 0 && cpusetCount > 0 {
-		return uint32(cpusetCount), nil
+		return float64(cpusetCount), nil
 	}
 
-	return utils.CalculateVCpusFromMilliCpus(mCPU), nil
+	return mCPU, nil
 }
 
 // GetHypervisorType is used for getting Hypervisor name currently used.

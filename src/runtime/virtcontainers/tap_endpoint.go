@@ -10,6 +10,7 @@ package virtcontainers
 import (
 	"context"
 	"fmt"
+	"math"
 
 	"github.com/containernetworking/plugins/pkg/ns"
 	"github.com/vishvananda/netlink"
@@ -98,7 +99,7 @@ func (endpoint *TapEndpoint) HotAttach(ctx context.Context, h Hypervisor) error 
 	span, ctx := tapTrace(ctx, "HotAttach", endpoint)
 	defer span.End()
 
-	if err := tapNetwork(endpoint, h.HypervisorConfig().NumVCPUs, h.HypervisorConfig().DisableVhostNet); err != nil {
+	if err := tapNetwork(endpoint, uint32(math.Ceil(h.HypervisorConfig().NumVCPUs)), h.HypervisorConfig().DisableVhostNet); err != nil {
 		networkLogger().WithError(err).Error("Error bridging tap ep")
 		return err
 	}

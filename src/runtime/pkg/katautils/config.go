@@ -130,7 +130,7 @@ type hypervisor struct {
 	MemSlots                       uint32          `toml:"memory_slots"`
 	DefaultBridges                 uint32          `toml:"default_bridges"`
 	Msize9p                        uint32          `toml:"msize_9p"`
-	NumVCPUs                       int32           `toml:"default_vcpus"`
+	NumVCPUs                       float64         `toml:"default_vcpus"`
 	BlockDeviceCacheSet            bool            `toml:"block_device_cache_set"`
 	BlockDeviceCacheDirect         bool            `toml:"block_device_cache_direct"`
 	BlockDeviceCacheNoflush        bool            `toml:"block_device_cache_noflush"`
@@ -392,17 +392,17 @@ func getCurrentCpuNum() uint32 {
 	return cpu
 }
 
-func (h hypervisor) defaultVCPUs() uint32 {
-	numCPUs := getCurrentCpuNum()
+func (h hypervisor) defaultVCPUs() float64 {
+	numCPUs := float64(getCurrentCpuNum())
 
-	if h.NumVCPUs < 0 || h.NumVCPUs > int32(numCPUs) {
+	if h.NumVCPUs < 0 || h.NumVCPUs > numCPUs {
 		return numCPUs
 	}
 	if h.NumVCPUs == 0 { // or unspecified
-		return defaultVCPUCount
+		return float64(defaultVCPUCount)
 	}
 
-	return uint32(h.NumVCPUs)
+	return h.NumVCPUs
 }
 
 func (h hypervisor) defaultMaxVCPUs() uint32 {
@@ -1273,7 +1273,7 @@ func GetDefaultHypervisorConfig() vc.HypervisorConfig {
 		MachineAccelerators:      defaultMachineAccelerators,
 		CPUFeatures:              defaultCPUFeatures,
 		HypervisorMachineType:    defaultMachineType,
-		NumVCPUs:                 defaultVCPUCount,
+		NumVCPUs:                 float64(defaultVCPUCount),
 		DefaultMaxVCPUs:          defaultMaxVCPUCount,
 		MemorySize:               defaultMemSize,
 		MemOffset:                defaultMemOffset,
