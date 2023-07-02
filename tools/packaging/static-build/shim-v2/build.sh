@@ -79,5 +79,5 @@ for vmm in ${VMM_CONFIGS}; do
 done
 
 pushd "${DESTDIR}/${PREFIX}/share/defaults/kata-containers"
-	sudo ln -sf "configuration-qemu.toml" configuration.toml
+	sudo ln -sf "configuration-clh.toml" configuration.toml
 popd
