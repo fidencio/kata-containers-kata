@@ -22,32 +22,14 @@ all-parallel: $(MK_DIR)/dockerbuild/install_yq.sh
 	${MAKE} -f $(MK_PATH) all -j $(shell nproc ${CI:+--ignore 1}) V=
 
 all: serial-targets \
-	firecracker-tarball \
-	kernel-dragonball-experimental-tarball \
-	kernel-nvidia-gpu-tarball \
-	kernel-nvidia-gpu-snp-tarball \
-	kernel-nvidia-gpu-tdx-experimental-tarball \
 	kernel-tarball \
-	kernel-tdx-experimental-tarball \
-	nydus-tarball \
-	ovmf-sev-tarball \
-	ovmf-tarball \
-	qemu-snp-experimental-tarball \
-	qemu-tarball \
-	qemu-tdx-experimental-tarball \
-	shim-v2-tarball \
-	tdvf-tarball \
-	virtiofsd-tarball
+	virtiofsd-tarball \
+	shim-v2-tarball
 
 serial-targets:
 	${MAKE} -f $(MK_PATH) -j 1 V= \
 	rootfs-image-tarball \
-	rootfs-image-tdx-tarball \
-	rootfs-initrd-mariner-tarball \
-	rootfs-initrd-sev-tarball \
-	rootfs-initrd-tarball \
-	cloud-hypervisor-tarball \
-	cloud-hypervisor-glibc-tarball
+	cloud-hypervisor-tarball
 
 %-tarball-build: $(MK_DIR)/dockerbuild/install_yq.sh
 	$(call BUILD,$*)

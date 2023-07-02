@@ -28,7 +28,7 @@ EXTRA_OPTS="${EXTRA_OPTS:-""}"
 sudo docker pull ${container_image} || \
 	(sudo docker ${BUILDX} build ${PLATFORM}  \
 		--build-arg GO_VERSION="${GO_VERSION}" \
-		--build-arg RUST_VERSION="${RUST_VERSION}" \
+		--build-arg RUST_VERSION="" \
 		-t "${container_image}" \
 		"${script_dir}" && \
 	 push_to_registry "${container_image}")
