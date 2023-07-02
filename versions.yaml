@@ -132,7 +132,7 @@ assets:
         version: *default-image-version
       x86_64:
         name: *default-image-name
-        version: *default-image-version
+        version: "18.04"
         tdx:
           name: *default-image-name
           version: *default-image-version
