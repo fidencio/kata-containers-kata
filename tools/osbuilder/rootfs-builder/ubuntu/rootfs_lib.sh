@@ -32,6 +32,11 @@ EOF
 	ln -s /run "$rootfs_dir/var/run"
 	cp --remove-destination /etc/resolv.conf "$rootfs_dir/etc"
 
+	# 32-bits support packages
+	dpkg --add-architecture i386
+	apt-get update
+	apt-get install -y multiarch-support:i386
+
 	# Reduce image size and memory footprint by removing unnecessary files and directories.
 	rm -rf $rootfs_dir/usr/share/{bash-completion,bug,doc,info,lintian,locale,man,menu,misc,pixmaps,terminfo,zsh}
 
