@@ -132,7 +132,7 @@ assets:
         version: "latest"
       x86_64:
         name: &default-image-name "ubuntu"
-        version: "latest"
+        version: "18.04"
     meta:
       image-type: *default-image-name
 
