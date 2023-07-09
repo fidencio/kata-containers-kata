@@ -105,7 +105,7 @@ impl InitialSizeManager {
             hv.cpu_info.default_vcpus = self.resource.vcpu as i32
         }
         if self.resource.mem_mb > 0 {
-            hv.memory_info.default_memory = self.resource.mem_mb;
+            hv.memory_info.default_memory += self.resource.mem_mb;
         }
         Ok(())
     }
