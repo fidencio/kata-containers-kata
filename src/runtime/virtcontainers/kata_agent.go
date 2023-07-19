@@ -364,6 +364,11 @@ func (k *kataAgent) init(ctx context.Context, sandbox *Sandbox, config KataAgent
 	k.kmodules = config.KernelModules
 	k.dialTimout = config.DialTimeout
 
+	configuredRequestTimeout := time.Duration(sandbox.config.ImageRequestTimeout) * time.Second
+	if defaultRequestTimeout != configuredRequestTimeout {
+		defaultRequestTimeout = configuredRequestTimeout
+	}
+
 	return disableVMShutdown, nil
 }
 

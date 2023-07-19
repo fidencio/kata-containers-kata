@@ -658,6 +658,10 @@ experimental=@DEFAULTEXPFEATURES@
 # (default: false)
 service_offload = @DEFSERVICEOFFLOAD@
 
+# Image request timeout which, if provided, indicates the image request timeout
+# in the guest needed for the workload(s)
+image_request_timeout = @DEFIMAGEREQUESTTIMEOUT@
+
 # Container image decryption keys provisioning.
 # Applies only if service_offload is true.
 # Keys can be provisioned locally (e.g. through a special command or

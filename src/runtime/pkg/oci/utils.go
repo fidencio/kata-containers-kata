@@ -157,6 +157,10 @@ type RuntimeConfig struct {
 
 	// Offload the CRI image management service to the Kata agent.
 	ServiceOffload bool
+
+	// Image request timeout which, if provided, indicates the image request timeout
+	// in the guest needed for the workload(s)
+	ImageRequestTimeout uint32
 }
 
 // AddKernelParam allows the addition of new kernel parameters to an existing
@@ -1029,6 +1033,8 @@ func SandboxConfig(ocispec specs.Spec, runtime RuntimeConfig, bundlePath, cid st
 		Experimental: runtime.Experimental,
 
 		ServiceOffload: runtime.ServiceOffload,
+
+		ImageRequestTimeout: runtime.ImageRequestTimeout,
 	}
 
 	if err := addAnnotations(ocispec, &sandboxConfig, runtime); err != nil {
