@@ -76,12 +76,12 @@ build_clh_from_source() {
 
 	if [ -n "${features}" ]; then
 		info "Build cloud-hypervisor enabling the following features: ${features}"
-		./scripts/dev_cli.sh build --release --libc "${libc}" --features "${features}"
+		./scripts/dev_cli.sh build --release --libc "musl" --features "${features}"
 	else
-		./scripts/dev_cli.sh build --release --libc "${libc}"
+		./scripts/dev_cli.sh build --release --libc "musl"
 	fi
 	rm -f cloud-hypervisor
-	cp build/cargo_target/$(uname -m)-unknown-linux-${libc}/release/cloud-hypervisor .
+	cp build/cargo_target/$(uname -m)-unknown-linux-musl/release/cloud-hypervisor .
 	popd
 }
 
