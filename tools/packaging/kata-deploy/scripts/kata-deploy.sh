@@ -65,7 +65,7 @@ function install_artifacts() {
 			artifacts_dir+="-5.19"
 			;;
 		6.2*)
-			artifacts_dir="-6.2"
+			artifacts_dir+="-6.2"
 			;;
 		*)
 			die "We should never reach this when installing artefacts, you're using a non-supported kernel version"
@@ -93,13 +93,13 @@ function configure_kata_default_configs() {
 	sed -i "s/\(default_maxvcpus\).*/\1\ = $vcpus_new_default/g" $(grep -rl default_vcpus $(find /opt/kata/ -name "*qemu*.toml"))
 
 	echo "Changing default memory"
-	memory_new_default = $(($(grep MemTotal /proc/meminfo | awk '{print $2}') * 80 / 102400))
-	one_tib = 1048576
+	memory_new_default=$(($(grep MemTotal /proc/meminfo | awk '{print $2}') * 80 / 102400))
+	one_tib=1048576
 	if [ ${memory_new_default} -gt ${one_tib} ]; then
 		echo "Default memory is greater than 1TiB"
 		echo "Let's cap it to 1TiB, due to a QEMU limitation"
 		echo "see: https://cpaelzer.github.io/blogs/005-guests-bigger-than-1tb/"
-		memory_new_default = ${one_tib}
+		memory_new_default=${one_tib}
 	fi
 
 	sed -i "s/\(default_memory\).*/\1\ = $memory_new_default/g" $(grep -rl default_memory $(find /opt/kata/ -name "*qemu*.toml"))
