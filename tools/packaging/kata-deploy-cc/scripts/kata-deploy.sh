@@ -14,12 +14,8 @@ containerd_conf_file="/etc/containerd/config.toml"
 containerd_conf_file_backup="${containerd_conf_file}.bak"
 
 shims=(
-        "remote"
         "qemu"
         "qemu-tdx"
-        "qemu-sev"
-        "qemu-se"
-        "qemu-snp"
         "clh"
         "clh-tdx"
 )
