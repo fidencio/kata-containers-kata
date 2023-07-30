@@ -47,7 +47,7 @@ readonly jenkins_url="http://jenkins.katacontainers.io"
 readonly cached_artifacts_path="lastSuccessfulBuild/artifact/artifacts"
 
 ARCH=$(uname -m)
-MEASURED_ROOTFS=${MEASURED_ROOTFS:-no}
+MEASURED_ROOTFS=${MEASURED_ROOTFS:-"yes"}
 USE_CACHE="${USE_CACHE:-"yes"}"
 
 workdir="${WORKDIR:-$PWD}"
