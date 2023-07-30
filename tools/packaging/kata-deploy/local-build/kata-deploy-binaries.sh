@@ -393,7 +393,7 @@ install_cc_shimv2() {
 		&& return 0
 
 	GO_VERSION="$(yq r ${versions_yaml} languages.golang.meta.newest-version)"
-	RUST_VERSION="$(yq r ${versions_yaml} languages.rust.meta.newest-version)"
+	RUST_VERSION=""
 	export GO_VERSION
 	export RUST_VERSION
 	export REMOVE_VMM_CONFIGS="acrn fc qemu-se qemu-sev qemu-snp qemu-nvidia-gpu remote dragonball"
