@@ -26,6 +26,7 @@ LIBC=${LIBC:-musl}
 # The kata agent enables seccomp feature.
 # However, it is not enforced by default: you need to enable that in the main configuration file.
 SECCOMP=${SECCOMP:-"yes"}
+CDH_RESOURCE_PROVIDER=${CDH_RESOURCE_PROVIDER:-"kbs"}
 SELINUX=${SELINUX:-"no"}
 AGENT_POLICY=${AGENT_POLICY:-no}
 
@@ -792,6 +793,11 @@ EOF
 		make KBC=${AA_KBC} ttrpc=true
 		make install DESTDIR="${ROOTFS_DIR}/usr/local/bin/"
 		strip ${ROOTFS_DIR}/usr/local/bin/attestation-agent
+		popd
+
+		pushd guest-components/confidential-data-hub
+		make RESOURCE_PROVIDER=${CDH_RESOURCE_PROVIDER}
+		make install DESTDIR="${ROOTFS_DIR}/usr/local/bin/"
 		popd
 	fi
 
