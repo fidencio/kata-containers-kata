@@ -24,6 +24,7 @@ const LOG_VPORT_OPTION: &str = "agent.log_vport";
 const CONTAINER_PIPE_SIZE_OPTION: &str = "agent.container_pipe_size";
 const UNIFIED_CGROUP_HIERARCHY_OPTION: &str = "agent.unified_cgroup_hierarchy";
 const CONFIG_FILE: &str = "agent.config_file";
+const AA_KBC_PARAMS: &str = "agent.aa_kbc_params";
 
 const DEFAULT_LOG_LEVEL: slog::Level = slog::Level::Info;
 const DEFAULT_HOTPLUG_TIMEOUT: time::Duration = time::Duration::from_secs(3);
@@ -64,6 +65,7 @@ pub struct AgentConfig {
     pub unified_cgroup_hierarchy: bool,
     pub tracing: bool,
     pub supports_seccomp: bool,
+    pub aa_kbc_params: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -78,6 +80,7 @@ pub struct AgentConfigBuilder {
     pub server_addr: Option<String>,
     pub unified_cgroup_hierarchy: Option<bool>,
     pub tracing: Option<bool>,
+    pub aa_kbc_params: Option<String>,
 }
 
 macro_rules! config_override {
@@ -138,6 +141,7 @@ impl Default for AgentConfig {
             unified_cgroup_hierarchy: false,
             tracing: false,
             supports_seccomp: rpc::have_seccomp(),
+             aa_kbc_params: String::from(""),
         }
     }
 }
@@ -166,6 +170,7 @@ impl FromStr for AgentConfig {
         config_override!(agent_config_builder, agent_config, server_addr);
         config_override!(agent_config_builder, agent_config, unified_cgroup_hierarchy);
         config_override!(agent_config_builder, agent_config, tracing);
+        config_override!(agent_config_builder, agent_config, aa_kbc_params);
 
         Ok(agent_config)
     }
@@ -258,6 +263,7 @@ impl AgentConfig {
                 config.unified_cgroup_hierarchy,
                 get_bool_value
             );
+            parse_cmdline_param!(param, AA_KBC_PARAMS, config.aa_kbc_params, get_string_value);
         }
 
         if let Ok(addr) = env::var(SERVER_ADDR_ENV_VAR) {
@@ -441,6 +447,7 @@ mod tests {
             server_addr: &'a str,
             unified_cgroup_hierarchy: bool,
             tracing: bool,
+            aa_kbc_params: &'a str,
         }
 
         impl Default for TestData<'_> {
@@ -456,6 +463,7 @@ mod tests {
                     server_addr: TEST_SERVER_ADDR,
                     unified_cgroup_hierarchy: false,
                     tracing: false,
+                    aa_kbc_params: "",
                 }
             }
         }
@@ -825,6 +833,16 @@ mod tests {
                 tracing: true,
                 ..Default::default()
             },
+            TestData {
+                contents: "agent.aa_kbc_params=offline_fs_kbc::null",
+                aa_kbc_params: "offline_fs_kbc::null",
+                ..Default::default()
+            },
+            TestData {
+                contents: "agent.aa_kbc_params=eaa_kbc::127.0.0.1:50000",
+                aa_kbc_params: "eaa_kbc::127.0.0.1:50000",
+                ..Default::default()
+            },
         ];
 
         let dir = tempdir().expect("failed to create tmpdir");
@@ -872,6 +890,7 @@ mod tests {
             assert_eq!(d.container_pipe_size, config.container_pipe_size, "{}", msg);
             assert_eq!(d.server_addr, config.server_addr, "{}", msg);
             assert_eq!(d.tracing, config.tracing, "{}", msg);
+            assert_eq!(d.aa_kbc_params, config.aa_kbc_params, "{}", msg);
 
             for v in vars_to_unset {
                 env::remove_var(v);
