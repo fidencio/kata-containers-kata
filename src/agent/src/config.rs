@@ -25,6 +25,7 @@ const CONTAINER_PIPE_SIZE_OPTION: &str = "agent.container_pipe_size";
 const UNIFIED_CGROUP_HIERARCHY_OPTION: &str = "agent.unified_cgroup_hierarchy";
 const CONFIG_FILE: &str = "agent.config_file";
 const AA_KBC_PARAMS: &str = "agent.aa_kbc_params";
+const REST_API_OPTION: &str = "agent.rest_api";
 
 const DEFAULT_LOG_LEVEL: slog::Level = slog::Level::Info;
 const DEFAULT_HOTPLUG_TIMEOUT: time::Duration = time::Duration::from_secs(3);
@@ -66,6 +67,7 @@ pub struct AgentConfig {
     pub tracing: bool,
     pub supports_seccomp: bool,
     pub aa_kbc_params: String,
+    pub rest_api: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -81,6 +83,7 @@ pub struct AgentConfigBuilder {
     pub unified_cgroup_hierarchy: Option<bool>,
     pub tracing: Option<bool>,
     pub aa_kbc_params: Option<String>,
+    pub rest_api: Option<String>,
 }
 
 macro_rules! config_override {
@@ -141,7 +144,8 @@ impl Default for AgentConfig {
             unified_cgroup_hierarchy: false,
             tracing: false,
             supports_seccomp: rpc::have_seccomp(),
-             aa_kbc_params: String::from(""),
+            aa_kbc_params: String::from(""),
+            rest_api: String::from(""),
         }
     }
 }
@@ -171,6 +175,7 @@ impl FromStr for AgentConfig {
         config_override!(agent_config_builder, agent_config, unified_cgroup_hierarchy);
         config_override!(agent_config_builder, agent_config, tracing);
         config_override!(agent_config_builder, agent_config, aa_kbc_params);
+        config_override!(agent_config_builder, agent_config, rest_api);
 
         Ok(agent_config)
     }
@@ -264,6 +269,7 @@ impl AgentConfig {
                 get_bool_value
             );
             parse_cmdline_param!(param, AA_KBC_PARAMS, config.aa_kbc_params, get_string_value);
+            parse_cmdline_param!(param, REST_API_OPTION, config.rest_api, get_string_value);
         }
 
         if let Ok(addr) = env::var(SERVER_ADDR_ENV_VAR) {
@@ -448,6 +454,7 @@ mod tests {
             unified_cgroup_hierarchy: bool,
             tracing: bool,
             aa_kbc_params: &'a str,
+            rest_api: &'a str,
         }
 
         impl Default for TestData<'_> {
@@ -464,6 +471,7 @@ mod tests {
                     unified_cgroup_hierarchy: false,
                     tracing: false,
                     aa_kbc_params: "",
+                    rest_api: "",
                 }
             }
         }
@@ -843,6 +851,21 @@ mod tests {
                 aa_kbc_params: "eaa_kbc::127.0.0.1:50000",
                 ..Default::default()
             },
+            TestData {
+                contents: "agent.rest_api=attestation",
+                rest_api: "attestation",
+                ..Default::default()
+            },
+            TestData {
+                contents: "agent.rest_api=resource",
+                rest_api: "resource",
+                ..Default::default()
+            },
+            TestData {
+                contents: "agent.rest_api=all",
+                rest_api: "all",
+                ..Default::default()
+            },
         ];
 
         let dir = tempdir().expect("failed to create tmpdir");
@@ -891,6 +914,7 @@ mod tests {
             assert_eq!(d.server_addr, config.server_addr, "{}", msg);
             assert_eq!(d.tracing, config.tracing, "{}", msg);
             assert_eq!(d.aa_kbc_params, config.aa_kbc_params, "{}", msg);
+            assert_eq!(d.rest_api, config.rest_api, "{}", msg);
 
             for v in vars_to_unset {
                 env::remove_var(v);
