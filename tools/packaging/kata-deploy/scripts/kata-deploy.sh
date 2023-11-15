@@ -14,6 +14,14 @@ crio_drop_in_conf_file_debug="${crio_drop_in_conf_dir}/100-debug"
 containerd_conf_file="/etc/containerd/config.toml"
 containerd_conf_file_backup="${containerd_conf_file}.bak"
 
+allowed_rust_runtimes=(dragonball)
+allowed_go_runtimes=(clh fc qemu-nvidia-gpu qemu-sev qemu-snp qemu-tdx)
+
+allowed_shims=${allowed_go_runtimes}
+if [ "${RUST_RUNTIME}" == "true" ]; then
+	allowed_shims=${allowed_rust_runtimes}
+fi
+
 IFS=' ' read -a shims <<< "$SHIMS"
 default_shim="$DEFAULT_SHIM"
 
@@ -43,6 +51,10 @@ function create_runtimeclasses() {
 	echo "Creating the runtime classes"
 
 	for shim in "${shims[@]}"; do
+		if [[ ! " ${shim} " ~= " ${allowed_shims[*]} "]]; then
+			continue
+		fi
+
 		echo "Creating the kata-${shim} runtime class"
 		kubectl apply -f /opt/kata-artifacts/runtimeclasses/kata-${shim}.yaml
 	done
@@ -60,6 +72,10 @@ function delete_runtimeclasses() {
 	echo "Deleting the runtime classes"
 
 	for shim in "${shims[@]}"; do
+		if [[ ! " ${shim} " ~= " ${allowed_shims[*]} "]]; then
+			continue
+		fi
+
 		echo "Deleting the kata-${shim} runtime class"
 		kubectl delete -f /opt/kata-artifacts/runtimeclasses/kata-${shim}.yaml
 	done
@@ -113,6 +129,11 @@ function install_artifacts() {
 
 	config_path="/opt/kata/share/defaults/kata-containers/"
 	for shim in "${shims[@]}"; do
+
+		if [[ ! " ${shim} " ~= " ${allowed_shims[*]} "]]; then
+			continue
+		fi
+
 		local kata_config_file="${config_path}/configuration-${shim}.toml"
 		# Allow enabling debug for Kata Containers
 		if [[ "${DEBUG}" == "true" ]]; then
@@ -203,7 +224,7 @@ function configure_different_shims_base() {
 
 		backup_shim "${shim_file}"
 
-		if [[ "${shim}" == "dragonball" ]]; then
+		if [[ "${RUST_RUNTIME}" == "true" ]]; then
 			ln -sf /opt/kata/runtime-rs/bin/containerd-shim-kata-v2 "${shim_file}"
 		else
 			ln -sf /opt/kata/bin/containerd-shim-kata-v2 "${shim_file}"
@@ -427,6 +448,7 @@ function main() {
 	echo "* CREATE_RUNTIMECLASSES: ${CREATE_RUNTIMECLASSES}"
 	echo "* CREATE_DEFAULT_RUNTIMECLASS: ${CREATE_DEFAULT_RUNTIMECLASS}"
 	echo "* ALLOWED_HYPERVISOR_ANNOTATIONS: ${ALLOWED_HYPERVISOR_ANNOTATIONS}"
+	echo "* RUST_RUNTIME: ${RUST_RUNTIME}"
 
 	# script requires that user is root
 	euid=$(id -u)
