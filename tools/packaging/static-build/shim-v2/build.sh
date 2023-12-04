@@ -51,6 +51,7 @@ fi
 #Build rust project using cross build musl image to speed up
 [[ "${CROSS_BUILD}" == "true" && ${ARCH} != "s390x" ]] && container_image="messense/rust-musl-cross:${GCC_ARCH}-musl" && CC=${GCC_ARCH}-unknown-linux-musl-gcc
 
+if [[ -n "${RUST_VERSION}" ]]; then
 sudo docker run --rm -i -v "${repo_root_dir}:${repo_root_dir}" \
 	--env CROSS_BUILD=${CROSS_BUILD} \
 	--env ARCH=${ARCH} \
@@ -70,6 +71,7 @@ sudo docker run --rm -i -v "${repo_root_dir}:${repo_root_dir}" \
 	-w "${repo_root_dir}/src/runtime-rs" \
 	"${container_image}" \
 	bash -c "git config --global --add safe.directory ${repo_root_dir} && make PREFIX="${PREFIX}" DESTDIR="${DESTDIR}" install"
+fi
 
 [ "${CROSS_BUILD}" == "true" ] && container_image="${container_image_bk}-cross-build"
 
