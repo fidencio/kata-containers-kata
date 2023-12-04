@@ -16,7 +16,6 @@ EXTRA_TARBALL=\
 	kernel-tdx-experimental-tarball \
 	tdvf-tarball \
 	qemu-tdx-experimental-tarball \
-	rootfs-image-tdx-tarball \
 	cc-tdx-td-shim-tarball
 endif
 
@@ -152,7 +151,6 @@ cc-parallel: $(MK_DIR)/dockerbuild/install_yq.sh
 cc:	kernel-tarball \
 	qemu-tarball \
 	virtiofsd-tarball \
-	cc-rootfs-image-tarball \
 	cc-shim-v2-tarball \
 	${EXTRA_TARBALL}
 
@@ -168,5 +166,5 @@ cc-se-image-tarball: kernel-tarball cc-rootfs-initrd-tarball
 cc-tdx-td-shim-tarball:
 	${MAKE} $@-build
 
-cc-shim-v2-tarball:
+cc-shim-v2-tarball: cc-rootfs-image-tarball rootfs-image-tdx-tarball
 	${MAKE} $@-build
