@@ -207,6 +207,14 @@ ${extra}
 	  agent-is-init-daemon: "${AGENT_INIT}"
 EOF
 
+	if [ -n "${AA_KBC}" ]; then
+		cat >> "${file}" <<-EOF
+	attestation-agent:
+	  url: "${attestation_agent_url}"
+	  kbc: "${AA_KBC}"
+EOF
+	fi
+
 	local rootfs_file="${file_dir}/$(basename "${file}")"
 	info "Created summary file '${rootfs_file}' inside rootfs"
 }
@@ -228,6 +236,8 @@ generate_dockerfile()
 	readonly install_rust="
 ENV http_proxy=${http_proxy:-}
 ENV https_proxy=${http_proxy:-}
+ENV RUSTUP_UPDATE_ROOT="${RUSTUP_UPDATE_ROOT:-}"
+ENV RUSTUP_DIST_SERVER="${RUSTUP_DIST_SERVER:-}"
 RUN curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSLf | \
     sh -s -- -y --default-toolchain ${RUST_VERSION} -t ${rustarch}-unknown-linux-${LIBC}
 RUN . /root/.cargo/env; cargo install cargo-when
@@ -239,6 +249,7 @@ RUN . /root/.cargo/env; cargo install cargo-when
 		-e "s#@ARCH@#$ARCH#g" \
 		-e "s#@INSTALL_RUST@#${install_rust//$'\n'/\\n}#g" \
 		-e "s#@SET_PROXY@#${set_proxy:-}#g" \
+		-e "s#@INSTALL_AA_KBC@#${AA_KBC_EXTRAS//$'\n'/\\n}#g" \
 		Dockerfile.in > Dockerfile
 	popd
 }

@@ -202,6 +202,11 @@ assets:
 externals:
   description: "Third-party projects used by the system"
 
+  attestation-agent:
+    description: "Provide attested key unwrapping for image decryption"
+    url: "https://github.com/confidential-containers/guest-components/"
+    version: "v0.8.0"
+
   cni-plugins:
     description: "CNI network plugins"
     url: "https://github.com/containernetworking/plugins"

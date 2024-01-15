@@ -27,8 +27,12 @@ RUN apt-get update && \
     makedev \
     multistrap \
     musl-tools \
-    protobuf-compiler
+    protobuf-compiler \
+    gnupg \
+    clang
+
 # aarch64 requires this name -- link for all
 RUN ln -s /usr/bin/musl-gcc "/usr/bin/$(uname -m)-linux-musl-gcc"
 
 @INSTALL_RUST@
+@INSTALL_AA_KBC@
