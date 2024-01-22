@@ -792,17 +792,19 @@ EOF
 		( [ "${AA_KBC}" == "eaa_kbc" ] || [ "${AA_KBC}" == "cc_kbc_tdx" ] ) && [ "${ARCH}" == "x86_64" ] && LIBC="gnu"
 		make KBC=${AA_KBC} ttrpc=true
 		make install DESTDIR="${ROOTFS_DIR}/usr/local/bin/"
-		strip ${ROOTFS_DIR}/usr/local/bin/attestation-agent
+		${stripping_tool} ${ROOTFS_DIR}/usr/local/bin/attestation-agent
 		popd
 
 		pushd guest-components/confidential-data-hub
 		make RESOURCE_PROVIDER=${CDH_RESOURCE_PROVIDER}
 		make install DESTDIR="${ROOTFS_DIR}/usr/local/bin/"
+		${stripping_tool} ${ROOTFS_DIR}/usr/local/bin/confidential-data-hub
 		popd
 
 		pushd guest-components/api-server-rest
-		cargo build --release --target-dir ./target
-		install -D -m0755 ./target/release/api-server-rest ${ROOTFS_DIR}/usr/local/bin/
+		make
+		make install DESTDIR="${ROOTFS_DIR}/usr/local/bin/"
+		${stripping_tool} ${ROOTFS_DIR}/usr/local/bin/api-server-rest
 		popd
 	fi
 
