@@ -847,8 +847,8 @@ mod tests {
                 ..Default::default()
             },
             TestData {
-                contents: "agent.aa_kbc_params=eaa_kbc::127.0.0.1:50000",
-                aa_kbc_params: "eaa_kbc::127.0.0.1:50000",
+                contents: "agent.aa_kbc_params=cc_kbc::127.0.0.1:50000",
+                aa_kbc_params: "cc_kbc::127.0.0.1:50000",
                 ..Default::default()
             },
             TestData {

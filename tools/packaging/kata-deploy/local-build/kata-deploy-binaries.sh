@@ -201,7 +201,7 @@ install_image() {
 #Install guest image for tdx
 install_image_tdx() {
 	export AGENT_POLICY=yes
-	export AA_KBC="cc_kbc_tdx"
+	export TEE_PLATFORM="tdx"
 	install_image "tdx"
 }
 

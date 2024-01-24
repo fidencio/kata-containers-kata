@@ -35,4 +35,4 @@ RUN apt-get update && \
 RUN ln -s /usr/bin/musl-gcc "/usr/bin/$(uname -m)-linux-musl-gcc"
 
 @INSTALL_RUST@
-@INSTALL_AA_KBC@
+@INSTALL_PLATFORM_EXTRAS@

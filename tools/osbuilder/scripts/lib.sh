@@ -207,11 +207,11 @@ ${extra}
 	  agent-is-init-daemon: "${AGENT_INIT}"
 EOF
 
-	if [ -n "${AA_KBC}" ]; then
+	if [ -n "${TEE_PLATFORM}" ]; then
 		cat >> "${file}" <<-EOF
 	attestation-agent:
 	  url: "${attestation_agent_url}"
-	  kbc: "${AA_KBC}"
+      tee_platform: "${TEE_PLATFORM}"
 EOF
 	fi
 
@@ -249,7 +249,7 @@ RUN . /root/.cargo/env; cargo install cargo-when
 		-e "s#@ARCH@#$ARCH#g" \
 		-e "s#@INSTALL_RUST@#${install_rust//$'\n'/\\n}#g" \
 		-e "s#@SET_PROXY@#${set_proxy:-}#g" \
-		-e "s#@INSTALL_AA_KBC@#${AA_KBC_EXTRAS//$'\n'/\\n}#g" \
+		-e "s#@INSTALL_PLATFORM_EXTRAS@#${PLATFORM_EXTRAS//$'\n'/\\n}#g" \
 		Dockerfile.in > Dockerfile
 	popd
 }

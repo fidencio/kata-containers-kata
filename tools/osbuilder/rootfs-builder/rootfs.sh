@@ -26,7 +26,6 @@ LIBC=${LIBC:-musl}
 # The kata agent enables seccomp feature.
 # However, it is not enforced by default: you need to enable that in the main configuration file.
 SECCOMP=${SECCOMP:-"yes"}
-CDH_RESOURCE_PROVIDER=${CDH_RESOURCE_PROVIDER:-"kbs"}
 SELINUX=${SELINUX:-"no"}
 AGENT_POLICY=${AGENT_POLICY:-no}
 
@@ -179,10 +178,10 @@ USE_PODMAN          If set and USE_DOCKER not set, then build the rootfs inside
                     a podman container (requires podman).
                     Default value: <not set>
 
-AA_KBC              Key broker client module for attestation-agent. This is
-                    required for confidential containers.
-                    See https://github.com/containers/attestation-agent
-                    for more information on available modules.
+TEE_PLATFORM        Used to indicate which TEE platform is.
+                    Required to build attestation-agent and confidential-data-hub
+                    See https://github.com/confidential-containers/guest-components
+                    for more information.
                     Default value: <not set>
 
 Refer to the Platform-OS Compatibility Matrix for more details on the supported
@@ -471,7 +470,7 @@ build_rootfs_distro()
 			--env OSBUILDER_VERSION="${OSBUILDER_VERSION}" \
 			--env OS_VERSION="${OS_VERSION}" \
 			--env INSIDE_CONTAINER=1 \
-			--env AA_KBC="${AA_KBC}" \
+			--env TEE_PLATFORM="${TEE_PLATFORM}" \
 			--env SECCOMP="${SECCOMP}" \
 			--env SELINUX="${SELINUX}" \
 			--env DEBUG="${DEBUG}" \
@@ -770,40 +769,25 @@ EOF
 	info "Create /etc/resolv.conf file in rootfs if not exist"
 	touch "$dns_file"
 
-    if [ -n "${AA_KBC}" ]; then
-		if [ "${AA_KBC}" == "offline_sev_kbc" ]; then
-			info "Adding agent config for ${AA_KBC}"
-			AA_KBC_PARAMS="offline_sev_kbc::null" envsubst < "${script_dir}/agent-config.toml.in" | tee "${ROOTFS_DIR}/etc/agent-config.toml"
-		fi
-		if [ "${AA_KBC}" == "online_sev_kbc" ]; then
-			info "Adding agent config for ${AA_KBC}"
+    if [ -n "${TEE_PLATFORM}" ]; then
+		if [ "${TEE_PLATFORM}" == "es" ]; then
+			info "Adding agent config for ${TEE_PLATFORM}"
 			#KBC URI will be specified in the config file via kernel params
 			AA_KBC_PARAMS="online_sev_kbc::123.123.123.123:44444" envsubst < "${script_dir}/agent-config.toml.in" | tee "${ROOTFS_DIR}/etc/agent-config.toml"
 		fi
 		attestation_agent_url="$(get_package_version_from_kata_yaml externals.attestation-agent.url)"
 		attestation_agent_version="$(get_package_version_from_kata_yaml externals.attestation-agent.version)"
-		info "Install attestation-agent with KBC ${AA_KBC}"
-		#git clone "${attestation_agent_url}" --branch "${attestation_agent_tag}" --single-branch
 		git clone --depth=1 "${attestation_agent_url}" guest-components
-
-		pushd guest-components/attestation-agent
+		pushd guest-components
 		git fetch --depth=1 origin "${attestation_agent_version}"
 		git checkout FETCH_HEAD
-		( [ "${AA_KBC}" == "eaa_kbc" ] || [ "${AA_KBC}" == "cc_kbc_tdx" ] ) && [ "${ARCH}" == "x86_64" ] && LIBC="gnu"
-		make KBC=${AA_KBC} ttrpc=true
-		make install DESTDIR="${ROOTFS_DIR}/usr/local/bin/"
+		[ "${ARCH}" == "x86_64" ] && LIBC="gnu"
+
+		# build and install attestation-agent, confidential-data-hub, api-server-rest
+		TEE_PLATFORM=${TEE_PLATFORM} make build
+		TEE_PLATFORM=${TEE_PLATFORM} make install DESTDIR="${ROOTFS_DIR}/usr/local/bin/"
 		${stripping_tool} ${ROOTFS_DIR}/usr/local/bin/attestation-agent
-		popd
-
-		pushd guest-components/confidential-data-hub
-		make RESOURCE_PROVIDER=${CDH_RESOURCE_PROVIDER}
-		make install DESTDIR="${ROOTFS_DIR}/usr/local/bin/"
 		${stripping_tool} ${ROOTFS_DIR}/usr/local/bin/confidential-data-hub
-		popd
-
-		pushd guest-components/api-server-rest
-		make
-		make install DESTDIR="${ROOTFS_DIR}/usr/local/bin/"
 		${stripping_tool} ${ROOTFS_DIR}/usr/local/bin/api-server-rest
 		popd
 	fi

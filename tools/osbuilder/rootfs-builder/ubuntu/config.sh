@@ -19,30 +19,12 @@ case "$ARCH" in
 	*) die "$ARCH not supported"
 esac
 
-if [ "${AA_KBC}" == "eaa_kbc" ] && [ "${ARCH}" == "x86_64" ]; then
-    source /etc/os-release
-
-    if [ "${VERSION_ID}" == "20.04" ]; then
-        PACKAGES+=" apt gnupg ca-certificates"
-        AA_KBC_EXTRAS="
-    RUN echo 'deb [arch=amd64] http://mirrors.openanolis.cn/inclavare-containers/ubuntu${VERSION_ID} ${OS_VERSION} main' \| tee /etc/apt/sources.list.d/inclavare-containers.list; \
-    curl -L http://mirrors.openanolis.cn/inclavare-containers/ubuntu${VERSION_ID}/DEB-GPG-KEY.key \| apt-key add -; \
-    echo 'deb [arch=amd64] https://download.01.org/intel-sgx/sgx_repo/ubuntu ${OS_VERSION} main' \| tee /etc/apt/sources.list.d/intel-sgx.list; \
-    curl -L https://download.01.org/intel-sgx/sgx_repo/ubuntu/intel-sgx-deb.key \| apt-key add -; \
-    apt-get update; \
-    apt-get install -y rats-tls-tdx libtdx-attest=1.15\*
-"
-    else
-        echo "rats-tls-tdx is only provided for Ubuntu 20.04, there's yet no packages for Ubuntu ${VERSION_ID}"
-    fi
-fi
-
-if [ "${AA_KBC}" == "cc_kbc_tdx" ] && [ "${ARCH}" == "x86_64" ]; then
+if [[ "${TEE_PLATFORM}" == "tdx" || "${TEE_PLATFORM}" == "all" ]] && [ "${ARCH}" == "x86_64" ]; then
     source /etc/os-release
 
     if [ "${OS_VERSION}" == "focal" ] || [ "${OS_VERSION}" == "20.04" ]; then
         PACKAGES+=" apt gnupg ca-certificates"
-        AA_KBC_EXTRAS="
+        PLATFORM_EXTRAS="
     RUN echo 'deb [arch=amd64] https://download.01.org/intel-sgx/sgx_repo/ubuntu ${OS_VERSION} main' \| tee /etc/apt/sources.list.d/intel-sgx.list; \
         curl -L https://download.01.org/intel-sgx/sgx_repo/ubuntu/intel-sgx-deb.key \| apt-key add -; \
         apt-get update; \

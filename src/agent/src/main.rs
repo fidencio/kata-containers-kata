@@ -88,14 +88,9 @@ cfg_if! {
 
 const NAME: &str = "kata-agent";
 
-const OCICRYPT_CONFIG_PATH: &str = "/tmp/ocicrypt_config.json";
 const AA_PATH: &str = "/usr/local/bin/attestation-agent";
 const AA_UNIX_SOCKET_DIR: &str = "/run/confidential-containers/attestation-agent/";
 const UNIX_SOCKET_PREFIX: &str = "unix://";
-const AA_KEYPROVIDER_URI: &str =
-    concatcp!(UNIX_SOCKET_PREFIX, AA_UNIX_SOCKET_DIR, "keyprovider.sock");
-const AA_GETRESOURCE_URI: &str =
-    concatcp!(UNIX_SOCKET_PREFIX, AA_UNIX_SOCKET_DIR, "getresource.sock");
 const AA_ATTESTATION_SOCKET: &str = concatcp!(AA_UNIX_SOCKET_DIR, "attestation-agent.sock");
 const AA_ATTESTATION_URI: &str = concatcp!(UNIX_SOCKET_PREFIX, AA_ATTESTATION_SOCKET);
 
@@ -103,6 +98,7 @@ const DEFAULT_LAUNCH_PROCESS_TIMEOUT: i32 = 6;
 
 cfg_if! {
     if #[cfg(feature = "confidential-data-hub")] {
+        const OCICRYPT_CONFIG_PATH: &str = "/tmp/ocicrypt_config.json";
         const CDH_PATH: &str = "/usr/local/bin/confidential-data-hub";
         const CDH_SOCKET: &str = "/run/confidential-containers/cdh.sock";
         const API_SERVER_PATH: &str = "/usr/local/bin/api-server-rest";
@@ -405,31 +401,11 @@ async fn start_sandbox(
 // If we fail to start the AA, ocicrypt won't be able to unwrap keys
 // and container decryption will fail.
 fn init_attestation_agent(logger: &Logger, _config: &AgentConfig) -> Result<()> {
-    let config_path = OCICRYPT_CONFIG_PATH;
-
-    // The image will need to be encrypted using a keyprovider
-    // that has the same name (at least according to the config).
-    let ocicrypt_config = serde_json::json!({
-        "key-providers": {
-            "attestation-agent":{
-                "ttrpc":AA_KEYPROVIDER_URI
-            }
-        }
-    });
-
-    fs::write(config_path, ocicrypt_config.to_string().as_bytes())?;
-
-    env::set_var("OCICRYPT_KEYPROVIDER_CONFIG", config_path);
-
     // The Attestation Agent will run for the duration of the guest.
     launch_process(
         logger,
         AA_PATH,
         &vec![
-            "--keyprovider_sock",
-            AA_KEYPROVIDER_URI,
-            "--getresource_sock",
-            AA_GETRESOURCE_URI,
             "--attestation_sock",
             AA_ATTESTATION_URI,
         ],
@@ -440,6 +416,22 @@ fn init_attestation_agent(logger: &Logger, _config: &AgentConfig) -> Result<()> 
 
     #[cfg(feature = "confidential-data-hub")]
     {
+        let config_path = OCICRYPT_CONFIG_PATH;
+
+        // The image will need to be encrypted using a keyprovider
+        // that has the same name (at least according to the config).
+        let ocicrypt_config = serde_json::json!({
+            "key-providers": {
+                "attestation-agent":{
+                    "ttrpc":CDH_SOCKET
+                }
+            }
+        });
+
+        fs::write(config_path, ocicrypt_config.to_string().as_bytes())?;
+
+        env::set_var("OCICRYPT_KEYPROVIDER_CONFIG", config_path);
+
         if let Err(e) = launch_process(
             logger,
             CDH_PATH,
