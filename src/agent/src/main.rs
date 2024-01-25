@@ -28,7 +28,8 @@ use nix::sys::socket::{self, AddressFamily, SockFlag, SockType, VsockAddr};
 use nix::unistd::{self, dup, Pid};
 use std::env;
 use std::ffi::OsStr;
-use std::fs::{self, File};
+use std::fs;
+use std::fs::File;
 use std::os::unix::fs as unixfs;
 use std::os::unix::io::AsRawFd;
 use std::path::Path;
@@ -96,14 +97,10 @@ const AA_ATTESTATION_URI: &str = concatcp!(UNIX_SOCKET_PREFIX, AA_ATTESTATION_SO
 
 const DEFAULT_LAUNCH_PROCESS_TIMEOUT: i32 = 6;
 
-cfg_if! {
-    if #[cfg(feature = "confidential-data-hub")] {
-        const OCICRYPT_CONFIG_PATH: &str = "/tmp/ocicrypt_config.json";
-        const CDH_PATH: &str = "/usr/local/bin/confidential-data-hub";
-        const CDH_SOCKET: &str = "/run/confidential-containers/cdh.sock";
-        const API_SERVER_PATH: &str = "/usr/local/bin/api-server-rest";
-    }
-}
+const OCICRYPT_CONFIG_PATH: &str = "/tmp/ocicrypt_config.json";
+const CDH_PATH: &str = "/usr/local/bin/confidential-data-hub";
+const CDH_SOCKET: &str = "/run/confidential-containers/cdh.sock";
+const API_SERVER_PATH: &str = "/usr/local/bin/api-server-rest";
 
 lazy_static! {
     static ref AGENT_CONFIG: AgentConfig =
@@ -384,9 +381,10 @@ async fn start_sandbox(
     let (tx, rx) = tokio::sync::oneshot::channel();
     sandbox.lock().await.sender = Some(tx);
 
-    if !config.aa_kbc_params.is_empty() {
-        init_attestation_agent(logger, config)?;
+    if Path::new(CDH_PATH).exists() && Path::new(AA_PATH).exists() {
+        init_attestation_components(logger, config)?;
     }
+
 
     // vsock:///dev/vsock, port
     let mut server = rpc::start(sandbox.clone(), config.server_addr.as_str(), init_mode)?;
@@ -400,7 +398,7 @@ async fn start_sandbox(
 
 // If we fail to start the AA, ocicrypt won't be able to unwrap keys
 // and container decryption will fail.
-fn init_attestation_agent(logger: &Logger, _config: &AgentConfig) -> Result<()> {
+fn init_attestation_components(logger: &Logger, _config: &AgentConfig) -> Result<()> {
     // The Attestation Agent will run for the duration of the guest.
     launch_process(
         logger,
@@ -411,45 +409,42 @@ fn init_attestation_agent(logger: &Logger, _config: &AgentConfig) -> Result<()> 
         ],
         AA_ATTESTATION_SOCKET,
         DEFAULT_LAUNCH_PROCESS_TIMEOUT,
-    )
-    .map_err(|e| anyhow!("launch_process {} failed: {:?}", AA_PATH, e))?;
+        )
+        .map_err(|e| anyhow!("launch_process {} failed: {:?}", AA_PATH, e))?;
 
-    #[cfg(feature = "confidential-data-hub")]
-    {
-        let config_path = OCICRYPT_CONFIG_PATH;
+    let config_path = OCICRYPT_CONFIG_PATH;
 
-        // The image will need to be encrypted using a keyprovider
-        // that has the same name (at least according to the config).
-        let ocicrypt_config = serde_json::json!({
-            "key-providers": {
-                "attestation-agent":{
-                    "ttrpc":CDH_SOCKET
-                }
+    // The image will need to be encrypted using a keyprovider
+    // that has the same name (at least according to the config).
+    let ocicrypt_config = serde_json::json!({
+        "key-providers": {
+            "attestation-agent":{
+                "ttrpc":CDH_SOCKET
             }
-        });
+        }
+    });
 
-        fs::write(config_path, ocicrypt_config.to_string().as_bytes())?;
+    fs::write(config_path, ocicrypt_config.to_string().as_bytes())?;
 
-        env::set_var("OCICRYPT_KEYPROVIDER_CONFIG", config_path);
+    env::set_var("OCICRYPT_KEYPROVIDER_CONFIG", config_path);
 
+    if let Err(e) = launch_process(
+        logger,
+        CDH_PATH,
+        &vec![],
+        CDH_SOCKET,
+        DEFAULT_LAUNCH_PROCESS_TIMEOUT,
+        ) {
+        error!(logger, "launch_process {} failed: {:?}", CDH_PATH, e);
+    } else if !_config.rest_api.is_empty() {
         if let Err(e) = launch_process(
             logger,
-            CDH_PATH,
-            &vec![],
-            CDH_SOCKET,
-            DEFAULT_LAUNCH_PROCESS_TIMEOUT,
-        ) {
-            error!(logger, "launch_process {} failed: {:?}", CDH_PATH, e);
-        } else if !_config.rest_api.is_empty() {
-            if let Err(e) = launch_process(
-                logger,
-                API_SERVER_PATH,
-                &vec!["--features", &_config.rest_api],
-                "",
-                0,
+            API_SERVER_PATH,
+            &vec!["--features", &_config.rest_api],
+            "",
+            0,
             ) {
-                error!(logger, "launch_process {} failed: {:?}", API_SERVER_PATH, e);
-            }
+            error!(logger, "launch_process {} failed: {:?}", API_SERVER_PATH, e);
         }
     }
 

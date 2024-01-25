@@ -24,7 +24,6 @@ const LOG_VPORT_OPTION: &str = "agent.log_vport";
 const CONTAINER_PIPE_SIZE_OPTION: &str = "agent.container_pipe_size";
 const UNIFIED_CGROUP_HIERARCHY_OPTION: &str = "agent.unified_cgroup_hierarchy";
 const CONFIG_FILE: &str = "agent.config_file";
-const AA_KBC_PARAMS: &str = "agent.aa_kbc_params";
 const REST_API_OPTION: &str = "agent.rest_api";
 
 const DEFAULT_LOG_LEVEL: slog::Level = slog::Level::Info;
@@ -66,7 +65,6 @@ pub struct AgentConfig {
     pub unified_cgroup_hierarchy: bool,
     pub tracing: bool,
     pub supports_seccomp: bool,
-    pub aa_kbc_params: String,
     pub rest_api: String,
 }
 
@@ -82,7 +80,6 @@ pub struct AgentConfigBuilder {
     pub server_addr: Option<String>,
     pub unified_cgroup_hierarchy: Option<bool>,
     pub tracing: Option<bool>,
-    pub aa_kbc_params: Option<String>,
     pub rest_api: Option<String>,
 }
 
@@ -144,7 +141,6 @@ impl Default for AgentConfig {
             unified_cgroup_hierarchy: false,
             tracing: false,
             supports_seccomp: rpc::have_seccomp(),
-            aa_kbc_params: String::from(""),
             rest_api: String::from(""),
         }
     }
@@ -174,7 +170,6 @@ impl FromStr for AgentConfig {
         config_override!(agent_config_builder, agent_config, server_addr);
         config_override!(agent_config_builder, agent_config, unified_cgroup_hierarchy);
         config_override!(agent_config_builder, agent_config, tracing);
-        config_override!(agent_config_builder, agent_config, aa_kbc_params);
         config_override!(agent_config_builder, agent_config, rest_api);
 
         Ok(agent_config)
@@ -268,7 +263,6 @@ impl AgentConfig {
                 config.unified_cgroup_hierarchy,
                 get_bool_value
             );
-            parse_cmdline_param!(param, AA_KBC_PARAMS, config.aa_kbc_params, get_string_value);
             parse_cmdline_param!(param, REST_API_OPTION, config.rest_api, get_string_value);
         }
 
@@ -453,7 +447,6 @@ mod tests {
             server_addr: &'a str,
             unified_cgroup_hierarchy: bool,
             tracing: bool,
-            aa_kbc_params: &'a str,
             rest_api: &'a str,
         }
 
@@ -470,7 +463,6 @@ mod tests {
                     server_addr: TEST_SERVER_ADDR,
                     unified_cgroup_hierarchy: false,
                     tracing: false,
-                    aa_kbc_params: "",
                     rest_api: "",
                 }
             }
@@ -842,16 +834,6 @@ mod tests {
                 ..Default::default()
             },
             TestData {
-                contents: "agent.aa_kbc_params=offline_fs_kbc::null",
-                aa_kbc_params: "offline_fs_kbc::null",
-                ..Default::default()
-            },
-            TestData {
-                contents: "agent.aa_kbc_params=cc_kbc::127.0.0.1:50000",
-                aa_kbc_params: "cc_kbc::127.0.0.1:50000",
-                ..Default::default()
-            },
-            TestData {
                 contents: "agent.rest_api=attestation",
                 rest_api: "attestation",
                 ..Default::default()
@@ -913,7 +895,6 @@ mod tests {
             assert_eq!(d.container_pipe_size, config.container_pipe_size, "{}", msg);
             assert_eq!(d.server_addr, config.server_addr, "{}", msg);
             assert_eq!(d.tracing, config.tracing, "{}", msg);
-            assert_eq!(d.aa_kbc_params, config.aa_kbc_params, "{}", msg);
             assert_eq!(d.rest_api, config.rest_api, "{}", msg);
 
             for v in vars_to_unset {

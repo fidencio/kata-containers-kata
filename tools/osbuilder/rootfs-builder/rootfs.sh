@@ -770,11 +770,6 @@ EOF
 	touch "$dns_file"
 
     if [ -n "${TEE_PLATFORM}" ]; then
-		if [ "${TEE_PLATFORM}" == "es" ]; then
-			info "Adding agent config for ${TEE_PLATFORM}"
-			#KBC URI will be specified in the config file via kernel params
-			AA_KBC_PARAMS="online_sev_kbc::123.123.123.123:44444" envsubst < "${script_dir}/agent-config.toml.in" | tee "${ROOTFS_DIR}/etc/agent-config.toml"
-		fi
 		attestation_agent_url="$(get_package_version_from_kata_yaml externals.attestation-agent.url)"
 		attestation_agent_version="$(get_package_version_from_kata_yaml externals.attestation-agent.version)"
 		git clone --depth=1 "${attestation_agent_url}" guest-components
