@@ -42,7 +42,7 @@ EOF
 
             echo 'deb [arch=amd64] http://security.ubuntu.com/ubuntu focal-security main universe' | tee ${rootfs_dir}/etc/apt/sources.list.d/universe.list
             echo 'deb [arch=amd64] https://download.01.org/intel-sgx/sgx_repo/ubuntu focal main' | tee ${rootfs_dir}/etc/apt/sources.list.d/intel-sgx.list
-            chroot "${rootfs_dir}" apt-get update && chroot "${rootfs_dir}" apt-get install -y libtdx-attest=1.15\* libtdx-attest-dev=1.15\*
+            chroot "${rootfs_dir}" apt-get update && chroot "${rootfs_dir}" apt-get install -y libtdx-attest=1.18\* libtdx-attest-dev=1.18\*
             echo 'port=4050' | chroot "${rootfs_dir}" tee /etc/tdx-attest.conf
         else
             echo "libtdx-attest is only provided for Ubuntu 20.04, there's yet no packages for Ubuntu ${VERSION_ID}"
