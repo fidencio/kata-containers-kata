@@ -226,6 +226,96 @@ function clean_env_ctr()
 	fi
 }
 
+# Copy local files to the guest image.
+#
+# Parameters:
+#	$1      - destination directory in the image. It is created if not exist.
+#	$2..*   - list of local files.
+#
+function cp_to_guest_img() {
+	local dest_dir="$1"
+	shift # remaining arguments are the list of files.
+	local src_files=($@)
+	local rootfs_dir=""
+
+	if [ "${#src_files[@]}" -eq 0 ]; then
+		echo "Expected a list of files"
+		return 1
+	fi
+
+	rootfs_dir="$(mktemp -d)"
+
+	# Open the original initrd/image, inject the agent file
+	local image_path="$(sudo -E PATH=$PATH kata-runtime kata-env --json | jq -r .Image.Path)"
+	if [ -f "$image_path" ]; then
+		if ! sudo mount -o loop,offset=$((512*6144)) "$image_path" \
+			"$rootfs_dir"; then
+			echo "Failed to mount the image file: $image_path"
+			rm -rf "$rootfs_dir"
+			return 1
+		fi
+	else
+		local initrd_path="$(sudo -E PATH=$PATH kata-runtime kata-env --json | \
+			jq -r .Initrd.Path)"
+		if [ "${TEE_TYPE}" = "se" ]; then
+			initrd_path="$(dirname $(sudo -E PATH=$PATH kata-runtime kata-env --json | \
+			jq -r .Kernel.Path))/kata-containers-initrd.img"
+		fi
+		if [ ! -f "$initrd_path" ]; then
+			echo "Guest initrd and image not found"
+			rm -rf "$rootfs_dir"
+			return 1
+		fi
+
+                if ! zcat "${initrd_path}" | cpio --extract --preserve-modification-time \
+                        --make-directories --directory="${rootfs_dir}"; then
+                        echo "Failed to uncompress the image file: $initrd_path"
+                        rm -rf "$rootfs_dir"
+                        return 1
+                fi
+	fi
+
+	sudo mkdir -p "${rootfs_dir}/${dest_dir}"
+	for file in ${src_files[@]}; do
+		if [ ! -f "$file" ] && [ ! -d "$file" ]; then
+			echo "File not found, not copying: $file"
+			continue
+		fi
+
+		if [ -f "$file" ]; then
+			sudo cp -af "${file}" "${rootfs_dir}/${dest_dir}"
+		else
+			sudo cp -ad "${file}" "${rootfs_dir}/${dest_dir}"
+		fi
+	done
+
+	if [ -f "$image_path" ]; then
+		if ! sudo umount "$rootfs_dir"; then
+			echo "Failed to umount the directory: $rootfs_dir"
+			rm -rf "$rootfs_dir"
+			return 1
+		fi
+	else
+		if ! sudo bash -c "cd "${rootfs_dir}" && find . | \
+			cpio -H newc -o | gzip -9 > ${initrd_path}"; then
+			echo "Failed to compress the image file"
+			rm -rf "$rootfs_dir"
+			return 1
+		fi
+	fi
+
+	if [ "${TEE_TYPE}" = "se" ]; then
+		if [ -z "$RUNTIME_CONFIG_PATH" ]; then
+			extract_kata_env
+		fi
+		local kernel_params=$(sed -n -e 's#^kernel_params = "\(.*\)"#\1#gp' \
+			"$RUNTIME_CONFIG_PATH")
+		build_se_image "${kernel_params}"
+	fi
+
+	rm -rf "$rootfs_dir"
+}
+
 # Kills running shim and hypervisor components
 function kill_kata_components() {
 	local ATTEMPTS=2
