@@ -15,67 +15,67 @@ jobs:
       target-arch: amd64
     secrets: inherit
 
-  build-and-push-assets-arm64:
-    uses: ./.github/workflows/release-arm64.yaml
-    with:
-      target-arch: arm64
-    secrets: inherit
+      #  build-and-push-assets-arm64:
+      #    uses: ./.github/workflows/release-arm64.yaml
+      #    with:
+      #      target-arch: arm64
+      #    secrets: inherit
+      #
+      #  build-and-push-assets-s390x:
+      #    uses: ./.github/workflows/release-s390x.yaml
+      #    with:
+      #      target-arch: s390x
+      #    secrets: inherit
+      #
+      #  build-and-push-assets-ppc64le:
+      #    uses: ./.github/workflows/release-ppc64le.yaml
+      #    with:
+      #      target-arch: ppc64le
+      #    secrets: inherit
 
-  build-and-push-assets-s390x:
-    uses: ./.github/workflows/release-s390x.yaml
-    with:
-      target-arch: s390x
-    secrets: inherit
-
-  build-and-push-assets-ppc64le:
-    uses: ./.github/workflows/release-ppc64le.yaml
-    with:
-      target-arch: ppc64le
-    secrets: inherit
-
-  publish-multi-arch-images:
-    runs-on: ubuntu-latest
-    needs: [build-and-push-assets-amd64, build-and-push-assets-arm64, build-and-push-assets-s390x, build-and-push-assets-ppc64le]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Login to Kata Containers docker.io
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Login to Kata Containers quay.io
-        uses: docker/login-action@v2
-        with:
-          registry: quay.io
-          username: ${{ secrets.QUAY_DEPLOYER_USERNAME }}
-          password: ${{ secrets.QUAY_DEPLOYER_PASSWORD }}
-
-      - name: Push multi-arch manifest
-        run: |
-          # tag the container image we created and push to DockerHub
-          tag=$(echo $GITHUB_REF | cut -d/ -f3-)
-          tags=($tag)
-          tags+=($([[ "$tag" =~ "alpha"|"rc" ]] && echo "latest" || echo "stable"))
-          # push to quay.io and docker.io
-          for tag in ${tags[@]}; do
-            docker manifest create quay.io/kata-containers/kata-deploy:${tag} \
-              --amend quay.io/kata-containers/kata-deploy:${tag}-amd64 \
-              --amend quay.io/kata-containers/kata-deploy:${tag}-arm64 \
-              --amend quay.io/kata-containers/kata-deploy:${tag}-s390x \
-              --amend quay.io/kata-containers/kata-deploy:${tag}-ppc64le
-
-            docker manifest create docker.io/katadocker/kata-deploy:${tag} \
-              --amend docker.io/katadocker/kata-deploy:${tag}-amd64 \
-              --amend docker.io/katadocker/kata-deploy:${tag}-arm64 \
-              --amend docker.io/katadocker/kata-deploy:${tag}-s390x \
-              --amend docker.io/katadocker/kata-deploy:${tag}-ppc64le
-
-            docker manifest push quay.io/kata-containers/kata-deploy:${tag}
-            docker manifest push docker.io/katadocker/kata-deploy:${tag}
-          done
+      #  publish-multi-arch-images:
+      #    runs-on: ubuntu-latest
+      #    needs: [build-and-push-assets-amd64, build-and-push-assets-arm64, build-and-push-assets-s390x, build-and-push-assets-ppc64le]
+      #    steps:
+      #      - name: Checkout repository
+      #        uses: actions/checkout@v4
+      #
+      #      - name: Login to Kata Containers docker.io
+      #        uses: docker/login-action@v2
+      #        with:
+      #          username: ${{ secrets.DOCKER_USERNAME }}
+      #          password: ${{ secrets.DOCKER_PASSWORD }}
+      #
+      #      - name: Login to Kata Containers quay.io
+      #        uses: docker/login-action@v2
+      #        with:
+      #          registry: quay.io
+      #          username: ${{ secrets.QUAY_DEPLOYER_USERNAME }}
+      #          password: ${{ secrets.QUAY_DEPLOYER_PASSWORD }}
+      #
+      #      - name: Push multi-arch manifest
+      #        run: |
+      #          # tag the container image we created and push to DockerHub
+      #          tag=$(echo $GITHUB_REF | cut -d/ -f3-)
+      #          tags=($tag)
+      #          tags+=($([[ "$tag" =~ "alpha"|"rc" ]] && echo "latest" || echo "stable"))
+      #          # push to quay.io and docker.io
+      #          for tag in ${tags[@]}; do
+      #            docker manifest create quay.io/kata-containers/kata-deploy:${tag} \
+      #              --amend quay.io/kata-containers/kata-deploy:${tag}-amd64 \
+      #              --amend quay.io/kata-containers/kata-deploy:${tag}-arm64 \
+      #              --amend quay.io/kata-containers/kata-deploy:${tag}-s390x \
+      #              --amend quay.io/kata-containers/kata-deploy:${tag}-ppc64le
+      #
+      #            docker manifest create docker.io/katadocker/kata-deploy:${tag} \
+      #              --amend docker.io/katadocker/kata-deploy:${tag}-amd64 \
+      #              --amend docker.io/katadocker/kata-deploy:${tag}-arm64 \
+      #              --amend docker.io/katadocker/kata-deploy:${tag}-s390x \
+      #              --amend docker.io/katadocker/kata-deploy:${tag}-ppc64le
+      #
+      #            docker manifest push quay.io/kata-containers/kata-deploy:${tag}
+      #            docker manifest push docker.io/katadocker/kata-deploy:${tag}
+      #          done
 
   upload-multi-arch-static-tarball:
     needs: publish-multi-arch-images
