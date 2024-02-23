@@ -13,6 +13,11 @@ set -o errtrace
 [ -n "${DEBUG:-}" ] && set -o xtrace
 
 RELEASE_TYPE="${RELEASE_TYPE:-minor}"
+RELEASE_VERSION="${RELEASE_VERSION:-}"
+GH_TOKEN="${GH_TOKEN:-}"
+
+this_script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root_dir="$(cd "$this_script_dir/../../../" && pwd)"
 
 function _die()
 {
@@ -25,9 +30,9 @@ function _info()
         echo "INFO: $*"
 }
 
-function _next_release_number()
+function _next_release_version()
 {
-	local current_release=$(git describe --tags --abbrev=0)
+	local current_release=$(cat "$repo_root_dir/VERSION")
 	local current_major
 	local current_everything_else
 	local next_major
@@ -61,20 +66,39 @@ function _next_release_number()
 	echo $next_release_number
 }
 
+function _check_release_version()
+{
+	if [ -z "$RELEASE_VERSION" ]; then
+		_die "A release version is expected to be set as the RELEASE_VERSION environment variable"
+	fi
+}
+
+function _check_gh_token()
+{
+	if [ -z "$GH_TOKEN" ]; then
+		_die "A github token is expected to be set as the GH_TOKEN environment variable"
+	fi
+}
+
 function _update_version_file()
 {
-	local new_relase=$(_next_release_number)
-	echo "$new_release" > "$repo_root_dir/VERSION"
+	_check_release_version
+
+    git config user.email "katacontainersbot@gmail.com"
+    git config user.name "Kata Containers Bot"
+	
+	echo "$RELEASE_VERSION" > "$repo_root_dir/VERSION"
 	git diff
 	git add "$repo_root_dir/VERSION"
-	git commit -s -m "release: Kata Containers $new_release"
+	git commit -s -m "release: Kata Containers $RELEASE_VERSION"
 	git push
 }
 
 function _create_new_release()
 {
-	local new_release=$(_next_release_number)
-	gh release create $new_release --release-notes 
+	_check_release_version
+	_check_gh_token
+	gh release create $RELEASE_VERSION --draft --generate-notes --title "Kata Containers $RELEASE_VERSION"
 }
 
 function main()
@@ -82,7 +106,7 @@ function main()
 	action="${1:-}"
 
 	case "${action}" in
-		get-release-number) _next_release_number ;;
+		get-release-version) _next_release_version ;;
 		update-version-file) _update_version_file ;;
 		create-new-release) _create_new_release ;;
 		*) >&2 echo "Invalid argument"; exit 2 ;;
