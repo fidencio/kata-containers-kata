@@ -19,7 +19,7 @@ spec:
         katacontainers.io/kata-runtime: cleanup
       containers:
         - name: kube-kata-cleanup
-          image: quay.io/kata-containers/kata-deploy:latest
+          image: quay.io/fidencio/kata-containers:3.9.0-exposing-config-fs
           imagePullPolicy: Always
           command: ["bash", "-c", "/opt/kata-artifacts/scripts/kata-deploy.sh reset"]
           env:
