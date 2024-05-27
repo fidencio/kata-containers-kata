@@ -19,7 +19,7 @@ spec:
         katacontainers.io/kata-runtime: cleanup
       containers:
         - name: kube-kata-cleanup
-          image: quay.io/kata-containers/kata-deploy:latest
+          image: quay.io/fidencio/kata-containers:3.8.0-with-ita-v0.0.1
           imagePullPolicy: Always
           command: ["bash", "-c", "/opt/kata-artifacts/scripts/kata-deploy.sh reset"]
           env:
@@ -30,13 +30,21 @@ spec:
             - name: DEBUG
               value: "false"
             - name: SHIMS
-              value: "clh cloud-hypervisor dragonball fc qemu-runtime-rs qemu-sev qemu-snp qemu-tdx qemu qemu-coco-dev stratovirt qemu-nvidia-gpu qemu-nvidia-gpu-snp qemu-nvidia-gpu-tdx"
+              value: "qemu qemu-tdx"
             - name: DEFAULT_SHIM
-              value: "qemu"
+              value: ""
             - name: CREATE_RUNTIMECLASSES
-              value: "false"
+              value: "true"
             - name: CREATE_DEFAULT_RUNTIMECLASS
               value: "false"
+            - name: ALLOWED_HYPERVISOR_ANNOTATIONS
+              value: ""
+            - name: SNAPSHOTTER_HANDLER_MAPPING
+              value: "qemu-tdx:nydus"
+            - name: AGENT_HTTPS_PROXY
+              value: ""
+            - name: AGENT_NO_PROXY
+              value: ""
           securityContext:
             privileged: true
   updateStrategy:
