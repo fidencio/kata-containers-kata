@@ -226,10 +226,10 @@ externals:
 
   coco-trustee:
     description: "Provides attestation and secret delivery components"
-    url: "https://github.com/confidential-containers/trustee"
-    version: "6adb8383309cbb7279f1d8e1e4620556ac66481e"
-    image: "ghcr.io/confidential-containers/staged-images/kbs"
-    image_tag: "6adb8383309cbb7279f1d8e1e4620556ac66481e"
+    url: "https://github.com/mythi/trustee"
+    version: "d0b1dbbc729bbdfd6020785b642b008c5efc108a"
+    image: "quay.io/fidencio/trustee"
+    image_tag: "idc-sdp-cloud-v0.0.2"
     toolchain: "1.74.0"
 
   crio:
