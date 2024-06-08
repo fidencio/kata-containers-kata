@@ -232,10 +232,11 @@ externals:
 
   coco-trustee:
     description: "Provides attestation and secret delivery components"
-    url: "https://github.com/confidential-containers/trustee"
-    version: "e890fc90c384207668fa3a4d6a2f2a2d652797ee"
-    image: "ghcr.io/confidential-containers/staged-images/kbs"
-    image_tag: "e890fc90c384207668fa3a4d6a2f2a2d652797ee"
+    url: "https://github.com/fidencio/trustee"
+    # https://github.com/fidencio/trustee/tree/intel/0.9.0-with-ita
+    version: "f5cf153b88a824ebc610dd5591eaac7bde572171"
+    image: "quay.io/fidencio/trustee"
+    image_tag: "0.9.0-with-ita-v0.0.1"
     toolchain: "1.74.0"
 
   crio:
