@@ -237,10 +237,11 @@ externals:
 
   coco-trustee:
     description: "Provides attestation and secret delivery components"
-    url: "https://github.com/confidential-containers/trustee"
-    version: "e890fc90c384207668fa3a4d6a2f2a2d652797ee"
-    image: "ghcr.io/confidential-containers/staged-images/kbs"
-    image_tag: "e890fc90c384207668fa3a4d6a2f2a2d652797ee"
+    url: "https://github.com/fidencio/trustee"
+    # https://github.com/fidencio/trustee/commits/topic/ita-test/ 
+    version: "993c48eb79364a8703cbe6163f3753edca075bc5"
+    image: "quay.io/fidencio/trustee"
+    image_tag: "fidencio-tests"
     toolchain: "1.74.0"
 
   crio:
