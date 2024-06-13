@@ -248,16 +248,7 @@ function kbs_k8s_deploy() {
 
 	echo "::group::Deploy the KBS"
 	if [ "${KATA_HYPERVISOR}" = "qemu-tdx" ]; then
-		echo "Setting up custom PCCS for TDX"
-		cat <<- EOF > "${COCO_KBS_DIR}/config/kubernetes/custom_pccs/sgx_default_qcnl.conf"
-{
- "pccs_url": "https://$(hostname -i):8081/sgx/certification/v4/",
-
- // To accept insecure HTTPS certificate, set this option to false
- "use_secure_cert": false
-}
-EOF
-		export DEPLOYMENT_DIR=custom_pccs
+		export DEPLOYMENT_DIR=ita
 	fi
 	./deploy-kbs.sh
 	popd
