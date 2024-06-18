@@ -28,6 +28,7 @@ export KATA_HYPERVISOR=qemu-tdx
 export KBS=true
 export KBS_INGRESS=nodeport
 export KUBERNETES=k3s
+export ITA_KEY="${ITA_KEY:-}"
 SNAPSHOTTER="${SNAPSHOTTER:-}"
 HTTPS_PROXY="${HTTPS_PROXY:-${https_proxy:-}}"
 NO_PROXY="${NO_PROXY:-${no_proxy:-}}"
