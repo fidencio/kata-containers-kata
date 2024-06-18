@@ -16,6 +16,7 @@ source "${kubernetes_dir}/../../../tools/packaging/guest-image/lib_se.sh"
 # For kata-runtime
 export PATH="${PATH}:/opt/kata/bin"
 
+ITA_KEY="${ITA_KEY:-}"
 KATA_HYPERVISOR="${KATA_HYPERVISOR:-qemu}"
 # Where the trustee (includes kbs) sources will be cloned
 readonly COCO_TRUSTEE_DIR="/tmp/trustee"
@@ -301,6 +302,9 @@ function kbs_k8s_deploy() {
 
 	echo "::group::Deploy the KBS"
 	if [ "${KATA_HYPERVISOR}" = "qemu-tdx" ]; then
+		pushd "${COCO_KBS_DIR}/config/kubernetes/ita/"
+		sed -i -e "s/tBfd5kKX2x9ahbodKV1.../${ITA_KEY}/g" kbs-config.toml
+		popd
 		export DEPLOYMENT_DIR=ita
 	fi
 
