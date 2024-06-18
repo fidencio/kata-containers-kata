@@ -227,9 +227,9 @@ externals:
   coco-trustee:
     description: "Provides attestation and secret delivery components"
     url: "https://github.com/fidencio/trustee"
-    version: "bd4eec8d4806dc2c563d8aab902102875419fc3b"
+    version: "9e531dcd2d8cb9cc3025b3d0710cb5f0b7ea415c"
     image: "quay.io/fidencio/trustee"
-    image_tag: "idc-sdp-cloud-v0.0.2"
+    image_tag: "idc-sdp-cloud-v0.0.3"
     toolchain: "1.74.0"
 
   crio:
