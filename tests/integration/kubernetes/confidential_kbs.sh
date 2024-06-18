@@ -460,6 +460,7 @@ spec:
   - protocol: TCP
     port: 8080
     targetPort: 8080
+    nodePort: 32767
   type: NodePort
 EOF
 	kustomize edit add resource nodeport_service.yaml
