@@ -29,6 +29,7 @@ export KBS=true
 export KBS_INGRESS=nodeport
 export KUBERNETES=k3s
 export SNAPSHOTTER="nydus"
+export ITA_KEY="${ITA_KEY:-}"
 HTTPS_PROXY="${HTTPS_PROXY:-${https_proxy:-}}"
 NO_PROXY="${NO_PROXY:-${no_proxy:-}}"
 export PULL_TYPE="guest-pull"
