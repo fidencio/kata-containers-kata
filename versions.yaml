@@ -227,8 +227,9 @@ externals:
 
   coco-trustee:
     description: "Provides attestation and secret delivery components"
+    # This comes from https://github.com/fidencio/trustee/tree/rh/bm-with-ita-support
     url: "https://github.com/fidencio/trustee"
-    version: "9e531dcd2d8cb9cc3025b3d0710cb5f0b7ea415c"
+    version: "96e375d64e4354f9d6b68bc64ae830bb200d08b5"
     image: "quay.io/fidencio/trustee"
     image_tag: "idc-sdp-cloud-v0.0.3"
     toolchain: "1.74.0"
