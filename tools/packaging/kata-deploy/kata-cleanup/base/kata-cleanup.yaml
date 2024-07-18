@@ -19,7 +19,7 @@ spec:
         katacontainers.io/kata-runtime: cleanup
       containers:
         - name: kube-kata-cleanup
-          image: quay.io/fidencio/kata-containers:idc-sdp-cloud-v0.0.3
+          image: quay.io/fidencio/kata-containers:idc-sdp-cloud-v0.0.4
           imagePullPolicy: Always
           command: ["bash", "-c", "/opt/kata-artifacts/scripts/kata-deploy.sh reset"]
           env:
