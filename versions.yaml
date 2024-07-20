@@ -231,7 +231,7 @@ externals:
     url: "https://github.com/fidencio/trustee"
     version: "96e375d64e4354f9d6b68bc64ae830bb200d08b5"
     image: "quay.io/fidencio/trustee"
-    image_tag: "idc-sdp-cloud-v0.0.3"
+    image_tag: "bm-with-ita-support-v0.0.1"
     toolchain: "1.74.0"
 
   crio:
