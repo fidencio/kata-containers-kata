@@ -268,6 +268,10 @@ function install_artifacts() {
 			sed -i -e "s/^enable_annotations = \[\(.*\)\]/enable_annotations = [\1, $allowed_hypervisor_annotations]/" "${kata_config_file}"
 		fi
 
+		if [ -n "${NODE_IP}" ]; then
+			sed -i -e 's|^kernel_params = "\(.*\)"|kernel_params = "\1 agent.guest_components_rest_api=resource agent.aa_kbc_params=cc_kbc::http://'${NODE_IP}':32767"|g' "${kata_config_file}"
+		fi
+
 		if grep -q "tdx" <<< "$shim"; then
   			VERSION_ID=version_unset # VERSION_ID may be unset, see https://www.freedesktop.org/software/systemd/man/latest/os-release.html#Notes
 			source /host/etc/os-release || source /host/usr/lib/os-release
