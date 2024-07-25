@@ -487,7 +487,27 @@ _handle_ingress_aks() {
 #
 _handle_ingress_nodeport() {
 	# By exporting this variable the kbs deploy script will install the nodeport service
-	export DEPLOYMENT_DIR=nodeport
+	pushd "${COCO_KBS_DIR}/config/kubernetes/overlays"
+
+	cat > nodeport_service.yaml <<EOF
+# Service to expose the KBS on nodes
+apiVersion: v1
+kind: Service
+metadata:
+  name: kbs-nodeport
+  namespace: "$KBS_NS"
+spec:
+  selector:
+    app: kbs
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+    nodePort: 32767
+  type: NodePort
+EOF
+	kustomize edit add resource nodeport_service.yaml
+	popd
 }
 
 
