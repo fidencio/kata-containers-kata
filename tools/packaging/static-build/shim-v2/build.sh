@@ -53,26 +53,6 @@ if [ ${arch} = "ppc64le" ]; then
 fi
 
 #Build rust project using cross build musl image to speed up
-[[ "${CROSS_BUILD}" == "true" && ${ARCH} != "s390x" ]] && container_image="messense/rust-musl-cross:${GCC_ARCH}-musl" && CC=${GCC_ARCH}-unknown-linux-musl-gcc
-
-docker run --rm -i -v "${repo_root_dir}:${repo_root_dir}" \
-	--env CROSS_BUILD=${CROSS_BUILD} \
-	--env ARCH=${ARCH} \
-	--env CC="${CC}" \
-	-w "${repo_root_dir}/src/runtime-rs" \
-	--user "$(id -u)":"$(id -g)" \
-	"${container_image}" \
-	bash -c "make clean-generated-files && make PREFIX=${PREFIX} QEMUCMD=qemu-system-${arch}"
-
-docker run --rm -i -v "${repo_root_dir}:${repo_root_dir}" \
-	--env CROSS_BUILD=${CROSS_BUILD} \
-        --env ARCH=${ARCH} \
-        --env CC="${CC}" \
-	-w "${repo_root_dir}/src/runtime-rs" \
-	--user "$(id -u)":"$(id -g)" \
-	"${container_image}" \
-	bash -c "make PREFIX="${PREFIX}" DESTDIR="${DESTDIR}" install"
-
 [ "${CROSS_BUILD}" == "true" ] && container_image="${container_image_bk}-cross-build"
 
 docker run --rm -i -v "${repo_root_dir}:${repo_root_dir}" \
