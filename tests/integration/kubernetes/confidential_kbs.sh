@@ -29,6 +29,7 @@ readonly KBS_PRIVATE_KEY="${KBS_PRIVATE_KEY:-/opt/trustee/install/kbs.key}"
 readonly KBS_SVC_NAME="kbs"
 # The kbs ingress name
 readonly KBS_INGRESS_NAME="kbs"
+readonly KBS_NODEPORT=32767
 
 # Set "allow all" policy to resources.
 #
@@ -375,6 +376,7 @@ EOF
 	if [ -n "$ingress" ]; then
 		echo "::group::Check the kbs service is exposed"
 		svc_host=$(kbs_k8s_svc_http_addr)
+		svc_host="${svc_host}${KBS_NODEPORT}"
 		if [ -z "$svc_host" ]; then
 			echo "ERROR: service host not found"
 			return 1
@@ -524,7 +526,27 @@ _handle_ingress_aks() {
 #
 _handle_ingress_nodeport() {
 	# By exporting this variable the kbs deploy script will install the nodeport service
-	export DEPLOYMENT_DIR=nodeport
+	pushd "${COCO_KBS_DIR}/config/kubernetes/overlays/x86_64"
+
+	cat > nodeport_service.yaml <<EOF
+# Service to expose the KBS on nodes
+apiVersion: v1
+kind: Service
+metadata:
+  name: kbs-nodeport
+  namespace: "$KBS_NS"
+spec:
+  selector:
+    app: kbs
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+    nodePort: ${KBS_NODEPORT}
+  type: NodePort
+EOF
+	kustomize edit add resource nodeport_service.yaml
+	popd
 }
 
 
