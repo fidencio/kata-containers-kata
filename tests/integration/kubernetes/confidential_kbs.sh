@@ -215,7 +215,7 @@ kbs_uninstall_cli() {
 #
 function kbs_k8s_delete() {
 	pushd "$COCO_KBS_DIR"
-	kubectl delete -k config/kubernetes/overlays/$(uname -m)
+	kubectl delete -k config/kubernetes/overlays/
 	# Verify that KBS namespace resources were properly deleted
 	cmd="kubectl get all -n $KBS_NS 2>&1 | grep 'No resources found'"
 	waitForProcess "120" "30" "$cmd"
@@ -272,7 +272,7 @@ function kbs_k8s_deploy() {
 
 	# Tests should fill kbs resources later, however, the deployment
 	# expects at least one secret served at install time.
-	echo "somesecret" > overlays/$(uname -m)/key.bin
+	echo "somesecret" > overlays/key.bin
 
 	# For qemu-se runtime, prepare the necessary resources
 	if [ "${KATA_HYPERVISOR}" == "qemu-se" ]; then
