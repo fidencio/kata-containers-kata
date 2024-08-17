@@ -35,6 +35,9 @@ AGENT_NO_PROXY="${AGENT_NO_PROXY:-}"
 PULL_TYPE_MAPPING="${PULL_TYPE_MAPPING:-}"
 IFS=',' read -a pull_types <<< "$PULL_TYPE_MAPPING"
 
+INSTALLATION_PREFIX="${INSTALLATION_PREFIX:-/}"
+[[ "${INSTALLATION_PREFIX}" == "/" ]] && INSTALLATION_PREFIX=""
+
 # If we fail for any reason a message will be displayed
 die() {
         msg="$*"
@@ -129,7 +132,7 @@ function get_kata_containers_config_path() {
 	local shim="$1"
 
 	# Directory holding pristine configuration files for the current default golang runtime.
-	local golang_config_path="/opt/kata/share/defaults/kata-containers/"
+	local golang_config_path="${INSTALLATION_PREFIX}/opt/kata/share/defaults/kata-containers/"
 
 	# Directory holding pristine configuration files for the new rust runtime.
 	#
@@ -220,10 +223,10 @@ function get_tdx_ovmf_path_from_distro() {
 
 function install_artifacts() {
 	echo "copying kata artifacts onto host"
-	cp -au /opt/kata-artifacts/opt/kata/* /opt/kata/
-	chmod +x /opt/kata/bin/*
-	[ -d /opt/kata/runtime-rs/bin ] && \
-		chmod +x /opt/kata/runtime-rs/bin/*
+	cp -au /opt/kata-artifacts/opt/kata/* ${INSTALLATION_PREFIX}/opt/kata/
+	chmod +x ${INSTALLATION_PREFIX}/opt/kata/bin/*
+	[ -d ${INSTALLATION_PREFIX}/opt/kata/runtime-rs/bin ] && \
+		chmod +x ${INSTALLATION_PREFIX}/opt/kata/runtime-rs/bin/*
 
 	local config_path
 
@@ -285,8 +288,8 @@ function install_artifacts() {
 
 	# Allow Mariner to use custom configuration.
 	if [ "${HOST_OS:-}" == "cbl-mariner" ]; then
-		config_path="/opt/kata/share/defaults/kata-containers/configuration-clh.toml"
-		clh_path="/opt/kata/bin/cloud-hypervisor-glibc"
+		config_path="${INSTALLATION_PREFIX}/opt/kata/share/defaults/kata-containers/configuration-clh.toml"
+		clh_path="${INSTALLATION_PREFIX}/opt/kata/bin/cloud-hypervisor-glibc"
 		sed -i -E "s|(valid_hypervisor_paths) = .+|\1 = [\"${clh_path}\"]|" "${config_path}"
 		sed -i -E "s|(path) = \".+/cloud-hypervisor\"|\1 = \"${clh_path}\"|" "${config_path}"
 	fi
@@ -364,9 +367,9 @@ function configure_different_shims_base() {
 		# containerd-shim-kata-v2 binary
 		case "$shim" in
 			cloud-hypervisor | dragonball | qemu-runtime-rs)
-				ln -sf /opt/kata/runtime-rs/bin/containerd-shim-kata-v2 "${shim_file}" ;;
+				ln -sf ${INSTALLATION_PREFIX}/opt/kata/runtime-rs/bin/containerd-shim-kata-v2 "${shim_file}" ;;
 			*)
-				ln -sf /opt/kata/bin/containerd-shim-kata-v2 "${shim_file}" ;;
+				ln -sf ${INSTALLATION_PREFIX}/opt/kata/bin/containerd-shim-kata-v2 "${shim_file}" ;;
 		esac
 
 		chmod +x "$shim_file"
@@ -545,7 +548,7 @@ function configure_containerd() {
 
 function remove_artifacts() {
 	echo "deleting kata artifacts"
-	rm -rf /opt/kata/*
+	rm -rf ${INSTALLATION_PREFIX}/opt/kata/*
 }
 
 function cleanup_cri_runtime() {

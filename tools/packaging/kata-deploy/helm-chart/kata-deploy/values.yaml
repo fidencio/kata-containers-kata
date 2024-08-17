@@ -17,3 +17,4 @@ env:
   agentNoProxy: ""
   pullTypeMapping: ""
   hostOS: ""
+  installationPrefix: "/"

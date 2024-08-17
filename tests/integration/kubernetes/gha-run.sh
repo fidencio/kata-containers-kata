@@ -157,6 +157,8 @@ function deploy_kata() {
 		cleanup_kata_deploy || true
 	fi
 
+	INSTALLATION_PREFIX="/"
+
 	set_default_cluster_namespace
 
 	local values_yaml
@@ -176,6 +178,8 @@ function deploy_kata() {
 	yq -i ".env.agentNoProxy = \"\""                                 "${values_yaml}"
 	yq -i ".env.pullTypeMapping = \"\""                              "${values_yaml}"
 	yq -i ".env.hostOS = \"\""                                       "${values_yaml}"
+	yq -i ".env.installationPrefix = \"${INSTALLATION_PREFIX}\""     "${values_yaml}" 
+
 
 	if [ -n "${SNAPSHOTTER}" ]; then
 		yq -i ".env.snapshotterHandlerMapping = \"${KATA_HYPERVISOR}:${SNAPSHOTTER}\"" "${values_yaml}"

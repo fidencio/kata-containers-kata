@@ -56,6 +56,8 @@ spec:
         - name: HOST_OS
           value: {{ . | quote }}
 {{- end }}
+        - name: INSTALLATION_PREFIX
+          value: {{ .Values.env.installationPrefix | quote }}
         securityContext:
           privileged: true
         volumeMounts:
@@ -64,7 +66,7 @@ spec:
         - name: containerd-conf
           mountPath: /etc/containerd/
         - name: kata-artifacts
-          mountPath: /opt/kata/
+          mountPath: {{ .Values.env.installationPrefix }}/opt/kata/
         - name: local-bin
           mountPath: /usr/local/bin/
         - name: host
@@ -78,7 +80,7 @@ spec:
           path: '{{- template "containerdConfPath" .Values }}'
       - name: kata-artifacts
         hostPath:
-          path: /opt/kata/
+          path: {{ .Values.env.installationPrefix }}/opt/kata/
           type: DirectoryOrCreate
       - name: local-bin
         hostPath:

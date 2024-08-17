@@ -37,6 +37,8 @@ spec:
               value: "false"
             - name: CREATE_DEFAULT_RUNTIMECLASS
               value: "false"
+            - name: INSTALLATION_PREFIX
+              value: "/"
           securityContext:
             privileged: true
   updateStrategy:
