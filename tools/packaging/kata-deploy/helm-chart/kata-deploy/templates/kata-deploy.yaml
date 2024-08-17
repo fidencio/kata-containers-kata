@@ -67,8 +67,6 @@ spec:
           mountPath: /etc/containerd/
         - name: kata-artifacts
           mountPath: {{ .Values.env.installationPrefix }}/opt/kata/
-        - name: local-bin
-          mountPath: /usr/local/bin/
         - name: host
           mountPath: /host/
       volumes:
@@ -82,9 +80,6 @@ spec:
         hostPath:
           path: {{ .Values.env.installationPrefix }}/opt/kata/
           type: DirectoryOrCreate
-      - name: local-bin
-        hostPath:
-          path: /usr/local/bin/
       - name: host
         hostPath:
           path: /
