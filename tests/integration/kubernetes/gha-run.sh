@@ -417,11 +417,6 @@ function cleanup() {
 }
 
 function deploy_snapshotter() {
-	if [[ "${KATA_HYPERVISOR}" == "qemu-tdx" ]]; then
-	       echo "[Skip] ${SNAPSHOTTER} is pre-installed in the TEE machine"
-	       return
-	fi
-
 	echo "::group::Deploying ${SNAPSHOTTER}"
 	case ${SNAPSHOTTER} in
 		nydus) deploy_nydus_snapshotter ;;
@@ -431,11 +426,6 @@ function deploy_snapshotter() {
 }
 
 function cleanup_snapshotter() {
-	if [[ "${KATA_HYPERVISOR}" == "qemu-tdx" ]]; then
-	       echo "[Skip] ${SNAPSHOTTER} is pre-installed in the TEE machine"
-	       return
-	fi
-
 	echo "::group::Cleanuping ${SNAPSHOTTER}"
 	case ${SNAPSHOTTER} in
 		nydus) cleanup_nydus_snapshotter ;;
