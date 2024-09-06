@@ -234,9 +234,9 @@ externals:
     description: "Provides attestation and secret delivery components"
     url: "https://github.com/fidencio/trustee"
     # https://github.com/fidencio/trustee/tree/intel/kata-containers-3.8.0-with-ita
-    version: "2120a002b9f9cf11ee3377917251d3f8023dff75"
+    version: "7a0b583ae510c2e26d8a5b42c9308fc24b6e16cb"
     image: "quay.io/fidencio/trustee"
-    image_tag: "kata-containers-3.8.0-with-ita-v0.0.1"
+    image_tag: "kata-containers-3.8.0-with-ita-v0.0.2"
     toolchain: "1.74.0"
 
   crio:
