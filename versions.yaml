@@ -230,8 +230,9 @@ externals:
 
   coco-guest-components:
     description: "Provides attested key unwrapping for image decryption"
-    url: "https://github.com/confidential-containers/guest-components/"
-    version: "d996c692207a983426ae0043952d15ed18e84f66"
+    url: "https://github.com/fidencio/guest-components/"
+    # https://github.com/fidencio/guest-components/tree/topic/ita-test
+    version: "1de30ebc4cb55c55cf025a650c4a5a46f2f82abc"
     toolchain: "1.76.0"
 
   coco-trustee:
