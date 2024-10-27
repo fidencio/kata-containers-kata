@@ -193,12 +193,12 @@ assets:
 
   kernel:
     description: "Linux kernel optimised for virtual machines"
-    url: "https://cdn.kernel.org/pub/linux/kernel/v6.x/"
-    version: "v6.1.62"
+    url: "https://git.kernel.org/torvalds/t/"
+    version: "v6.12-rc4"
     confidential:
       description: "Linux kernel with x86_64 TEEs (SEV, SNP, and TDX) support"
-      url: "https://cdn.kernel.org/pub/linux/kernel/v6.x/"
-      version: "v6.7"
+      url: "https://git.kernel.org/torvalds/t/"
+      version: "v6.12-rc4"
 
   kernel-arm-experimental:
     description: "Linux kernel with cpu/mem hotplug support on arm64"

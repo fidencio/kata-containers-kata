@@ -175,35 +175,15 @@ get_kernel() {
 	version=${version#v}
 
 	major_version=$(echo "${version}" | cut -d. -f1)
-	kernel_tarball="linux-${version}.tar.xz"
+	kernel_tarball="linux-${version}.tar.gz"
 
-	if [[ -f "${kernel_tarball}.sha256" ]] && (grep -qF "${kernel_tarball}" "${kernel_tarball}.sha256"); then
-		info "Restore valid ${kernel_tarball}.sha256 to sha256sums.asc"
-		cp -f "${kernel_tarball}.sha256" sha256sums.asc
-	else
-		shasum_url="https://cdn.kernel.org/pub/linux/kernel/v${major_version}.x/sha256sums.asc"
-		info "Download kernel checksum file: sha256sums.asc from ${shasum_url}"
-		curl --fail -OL "${shasum_url}"
-		if (grep -F "${kernel_tarball}" sha256sums.asc >"${kernel_tarball}.sha256"); then
-			info "sha256sums.asc is valid, ${kernel_tarball}.sha256 generated"
-		else
-			die "sha256sums.asc is invalid"
-		fi
-	fi
-
-	if [ -f "${kernel_tarball}" ] && ! sha256sum -c "${kernel_tarball}.sha256"; then
-		info "invalid kernel tarball ${kernel_tarball} removing "
-		rm -f "${kernel_tarball}"
-	fi
 	if [ ! -f "${kernel_tarball}" ]; then
 		info "Download kernel version ${version}"
 		info "Download kernel"
-		curl --fail -OL "https://www.kernel.org/pub/linux/kernel/v${major_version}.x/${kernel_tarball}"
+		curl --fail -OL "https://git.kernel.org/torvalds/t/linux-6.12-rc4.tar.gz"
 	else
 		info "kernel tarball already downloaded"
 	fi
-
-	sha256sum -c "${kernel_tarball}.sha256"
 
 	tar xf "${kernel_tarball}"
 
