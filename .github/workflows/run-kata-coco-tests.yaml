@@ -262,6 +262,7 @@ jobs:
       AUTHENTICATED_IMAGE_PASSWORD: ${{ secrets.AUTHENTICATED_IMAGE_PASSWORD }}
       SNAPSHOTTER: ${{ matrix.snapshotter }}
       USING_NFD: "false"
+      AUTO_GENERATE_POLICY: "yes"
     steps:
       - uses: actions/checkout@v4
         with:
