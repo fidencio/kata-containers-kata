@@ -6,7 +6,7 @@
 # s390x settings
 
 MACHINETYPE := s390-ccw-virtio
-KERNELPARAMS :=
+KERNELPARAMS := cgroup_no_v1=all
 MACHINEACCELERATORS :=
 CPUFEATURES :=
 

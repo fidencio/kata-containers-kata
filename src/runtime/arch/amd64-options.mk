@@ -6,7 +6,7 @@
 # Intel x86-64 settings
 
 MACHINETYPE := q35
-KERNELPARAMS :=
+KERNELPARAMS := cgroup_no_v1=all
 MACHINEACCELERATORS :=
 CPUFEATURES := pmu=off
 

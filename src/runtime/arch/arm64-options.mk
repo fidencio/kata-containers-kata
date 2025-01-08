@@ -6,7 +6,7 @@
 # ARM 64 settings
 
 MACHINETYPE := virt
-KERNELPARAMS :=
+KERNELPARAMS := cgroup_no_v1=all
 MACHINEACCELERATORS :=
 CPUFEATURES := pmu=off
 

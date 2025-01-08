@@ -5,7 +5,7 @@
 #
 
 MACHINETYPE := pseries
-KERNELPARAMS :=
+KERNELPARAMS := cgroup_no_v1=all
 MACHINEACCELERATORS := "cap-cfpc=broken,cap-sbbc=broken,cap-ibs=broken,cap-large-decr=off,cap-ccf-assist=off"
 CPUFEATURES := pmu=off
 
