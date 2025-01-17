@@ -460,12 +460,14 @@ install_initrd() {
 
 	export AGENT_TARBALL=$(get_agent_tarball_path)
 	export AGENT_POLICY=yes
+	export AGENT_INIT=${AGENT_INIT:-yes}
 
 	"${rootfs_builder}" --osname="${os_name}" --osversion="${os_version}" --imagetype=initrd --prefix="${prefix}" --destdir="${destdir}" --image_initrd_suffix="${variant}"
 }
 
 #Install guest initrd for confidential guests
 install_initrd_confidential() {
+	export AGENT_INIT="no"
 	export MEASURED_ROOTFS=yes
 	export PULL_TYPE=default
 	install_initrd "confidential"
